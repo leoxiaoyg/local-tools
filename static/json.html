@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON 格式化</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page page-wide">
+    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <header class="header">
+      <div class="logo tool-icon-data" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M8 10h4a3 3 0 010 6H8M8 10v12M24 10h-4a3 3 0 000 6h4M24 10v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>JSON 格式化</h1>
+        <p class="subtitle">格式化、压缩与校验 JSON，纯浏览器本地处理</p>
+      </div>
+    </header>
+    <main class="card">
+      <div class="toolbar">
+        <button type="button" class="btn-ghost" id="btnFormat">格式化</button>
+        <button type="button" class="btn-ghost" id="btnMinify">压缩</button>
+        <button type="button" class="btn-ghost" id="btnValidate">校验</button>
+        <button type="button" class="btn-ghost" id="btnClear">清空</button>
+        <button type="button" class="btn-ghost" id="btnCopy">复制结果</button>
+      </div>
+      <div class="editor-split">
+        <label class="field"><span class="field-label">输入</span><textarea id="inputArea" class="textarea" placeholder='粘贴 JSON，例如 {"name":"demo"}'></textarea></label>
+        <label class="field"><span class="field-label">输出</span><textarea id="outputArea" class="textarea" readonly placeholder="结果将显示在这里"></textarea></label>
+      </div>
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+    </main>
+    <footer class="footer"><span>纯前端处理 · 文本不会发送到服务器</span></footer>
+  </div>
+  <script src="/json.js"></script>
+</body>
+</html>

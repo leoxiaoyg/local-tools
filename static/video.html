@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>视频转音频</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav"><a href="/">← 全部工具</a></nav>
+
+    <header class="header">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="8" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M22 14l6-3.5v11L22 18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M10 20h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>视频转音频</h1>
+        <p class="subtitle">导入视频，选择格式，一键提取并导出音频</p>
+      </div>
+    </header>
+
+    <main class="card">
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="选择或拖放视频文件">
+        <input type="file" id="fileInput" accept="video/*,.mp4,.mkv,.avi,.mov,.wmv,.flv,.webm,.m4v,.mpeg,.mpg,.3gp,.ts" hidden />
+        <div class="dropzone-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M24 32V16M24 16l-6 6M24 16l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="dropzone-title">拖放视频到此处，或点击选择文件</p>
+        <p class="dropzone-hint">支持 MP4、MKV、AVI、MOV、WebM 等常见格式 · 最大 500MB</p>
+      </section>
+
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-icon" aria-hidden="true">▶</div>
+        <div class="file-info">
+          <span class="file-name" id="fileName"></span>
+          <span class="file-size" id="fileSize"></span>
+        </div>
+        <button type="button" class="btn-ghost" id="clearBtn" aria-label="清除文件">清除</button>
+      </div>
+
+      <div class="controls">
+        <label class="field">
+          <span class="field-label">导出格式</span>
+          <select id="formatSelect" class="select"></select>
+        </label>
+
+        <button type="button" class="btn-primary" id="convertBtn" disabled>
+          <span class="btn-text">开始提取</span>
+          <span class="btn-spinner hidden" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="status hidden" id="statusBox" role="status">
+        <p class="status-text" id="statusText"></p>
+        <div class="progress hidden" id="progressBar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <div>
+          <p class="result-title">提取完成</p>
+          <p class="result-name" id="resultName"></p>
+        </div>
+        <a class="btn-download" id="downloadLink" download>下载音频</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>本地处理 · 文件不会上传到第三方</span>
+    </footer>
+  </div>
+
+  <script src="/video.js"></script>
+</body>
+</html>

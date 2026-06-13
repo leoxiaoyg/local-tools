@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图片压缩</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav"><a href="/">← 全部工具</a></nav>
+
+    <header class="header">
+      <div class="logo logo-image" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none">
+          <rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="11" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 22l7-6 5 4 6-7 6 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>图片压缩</h1>
+        <p class="subtitle">在尽量保持画质的前提下缩小体积，也可指定文件大小上限</p>
+      </div>
+    </header>
+
+    <main class="card">
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="选择或拖放图片文件">
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/tiff,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" hidden />
+        <div class="dropzone-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <path d="M24 32V16M24 16l-6 6M24 16l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="dropzone-title">拖放图片到此处，或点击选择文件</p>
+        <p class="dropzone-hint">支持 JPG、PNG、WebP、BMP、TIFF · 最大 50MB</p>
+      </section>
+
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-icon file-icon-image" aria-hidden="true">🖼</div>
+        <div class="file-info">
+          <span class="file-name" id="fileName"></span>
+          <span class="file-size" id="fileSize"></span>
+        </div>
+        <button type="button" class="btn-ghost" id="clearBtn" aria-label="清除文件">清除</button>
+      </div>
+
+      <div class="preview-row hidden" id="previewRow">
+        <img id="imagePreview" alt="图片预览" class="image-preview" />
+      </div>
+
+      <div class="controls">
+        <label class="field">
+          <span class="field-label">压缩模式</span>
+          <select id="modeSelect" class="select">
+            <option value="smart">智能压缩（优先保持画质）</option>
+            <option value="target">指定体积上限</option>
+          </select>
+        </label>
+
+        <label class="field hidden" id="targetField">
+          <span class="field-label">目标体积上限（KB）</span>
+          <input type="number" id="targetKb" class="input" min="1" placeholder="例如 200" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">输出格式</span>
+          <select id="formatSelect" class="select"></select>
+        </label>
+
+        <button type="button" class="btn-primary btn-primary-image" id="compressBtn" disabled>
+          <span class="btn-text">开始压缩</span>
+          <span class="btn-spinner hidden" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="status hidden" id="statusBox" role="status">
+        <p class="status-text" id="statusText"></p>
+      </div>
+
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <div class="result-body">
+          <p class="result-title">压缩完成</p>
+          <p class="result-name" id="resultName"></p>
+          <div class="size-stats" id="sizeStats"></div>
+          <p class="result-note" id="resultNote"></p>
+        </div>
+        <a class="btn-download" id="downloadLink" download>下载图片</a>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <span>本地处理 · 文件不会上传到第三方</span>
+    </footer>
+  </div>
+
+  <script src="/image.js"></script>
+</body>
+</html>

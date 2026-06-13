@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图片转换</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <header class="header">
+      <div class="logo logo-image" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 21l4-5 3 3 5-7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <h1>图片转换</h1>
+        <p class="subtitle">转换格式、调整尺寸，支持等比缩放与裁剪填充</p>
+      </div>
+    </header>
+    <main class="card">
+      <section class="dropzone" id="dropzone" tabindex="0" role="button">
+        <input type="file" id="fileInput" accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" hidden />
+        <p class="dropzone-title">拖放图片到此处，或点击选择</p>
+        <p class="dropzone-hint">支持 JPG、PNG、WebP、BMP、TIFF · 最大 50MB</p>
+      </section>
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-info"><span class="file-name" id="fileName"></span><span class="file-size" id="fileSize"></span></div>
+        <button type="button" class="btn-ghost" id="clearBtn">清除</button>
+      </div>
+      <div class="preview-row hidden" id="previewRow"><img id="imagePreview" alt="预览" class="image-preview" /></div>
+      <div class="controls">
+        <label class="field"><span class="field-label">输出格式</span><select id="formatSelect" class="select"></select></label>
+        <div class="field-row">
+          <label class="field"><span class="field-label">宽度（px，可选）</span><input type="number" id="widthInput" class="input" min="1" placeholder="自动" /></label>
+          <label class="field"><span class="field-label">高度（px，可选）</span><input type="number" id="heightInput" class="input" min="1" placeholder="自动" /></label>
+        </div>
+        <label class="field"><span class="field-label">缩放方式</span>
+          <select id="resizeMode" class="select">
+            <option value="fit">等比适应（不超出宽高）</option>
+            <option value="fill">裁剪填充（精确宽高）</option>
+            <option value="exact">拉伸至精确宽高</option>
+          </select>
+        </label>
+        <button type="button" class="btn-primary btn-primary-image" id="submitBtn" disabled><span class="btn-text">开始转换</span><span class="btn-spinner hidden"></span></button>
+      </div>
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon">✓</div>
+        <div class="result-body"><p class="result-title">转换完成</p><p class="result-name" id="resultName"></p><p class="result-note" id="resultMeta"></p></div>
+        <a class="btn-download" id="downloadLink" download>下载图片</a>
+      </div>
+    </main>
+    <footer class="footer"><span>本地处理 · 文件不会上传到第三方</span></footer>
+  </div>
+  <script src="/image-convert.js"></script>
+</body>
+</html>

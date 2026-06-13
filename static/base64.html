@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Base64 编解码</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page page-wide">
+    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <header class="header">
+      <div class="logo tool-icon-data" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="8" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 16h12M16 12v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1>Base64 编解码</h1>
+        <p class="subtitle">文本编解码在浏览器本地完成；文件通过本地服务处理</p>
+      </div>
+    </header>
+    <main class="card">
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="text">文本</button>
+        <button type="button" class="tab" data-tab="file">文件</button>
+      </div>
+
+      <div id="panelText" class="tab-panel">
+        <div class="toolbar">
+          <button type="button" class="btn-ghost" id="btnEncodeText">编码</button>
+          <button type="button" class="btn-ghost" id="btnDecodeText">解码</button>
+          <button type="button" class="btn-ghost" id="btnCopyText">复制</button>
+          <label class="check-label"><input type="checkbox" id="urlSafe" /> URL 安全</label>
+        </div>
+        <div class="editor-split">
+          <label class="field"><span class="field-label">输入</span><textarea id="textInput" class="textarea" placeholder="输入文本或 Base64"></textarea></label>
+          <label class="field"><span class="field-label">输出</span><textarea id="textOutput" class="textarea" readonly></textarea></label>
+        </div>
+      </div>
+
+      <div id="panelFile" class="tab-panel hidden">
+        <div class="toolbar">
+          <label class="btn-ghost file-label">选择文件<input type="file" id="fileInput" hidden /></label>
+          <span class="file-hint" id="fileHint">未选择文件</span>
+        </div>
+        <label class="field"><span class="field-label">Base64 结果</span><textarea id="fileOutput" class="textarea textarea-short" readonly placeholder="编码结果"></textarea></label>
+        <div class="field-row">
+          <label class="field flex-1"><span class="field-label">Base64 输入（解码为文件）</span><textarea id="decodeInput" class="textarea textarea-short" placeholder="粘贴 Base64"></textarea></label>
+          <label class="field"><span class="field-label">文件名</span><input type="text" id="decodeFilename" class="input" value="decoded.bin" /></label>
+        </div>
+        <button type="button" class="btn-primary" id="btnDecodeFile">解码并下载</button>
+      </div>
+
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+    </main>
+    <footer class="footer"><span>文本本地处理 · 文件经本地服务转换</span></footer>
+  </div>
+  <script src="/base64.js"></script>
+</body>
+</html>
