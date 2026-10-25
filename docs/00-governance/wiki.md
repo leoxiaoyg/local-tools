@@ -8,7 +8,8 @@
 |---|---|---|---|
 | 问编制 / 谁拍板 | `team-charter.md` | 本页 | ADR、测试 |
 | 问下一步做什么 | `docs/local-tools-roadmap.md` | `05-project/wrap-2026-10-24.md` | 实现细节 |
-| 用 Web | `README.md` | `01-product/pdf.md`、各工具页 | CLI 说明书 |
+| 用 Web | `README.md` | `01-product/pdf.md`、`01-product/watermark.md`、各工具页 | CLI 说明书 |
+| 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 铺满/贴图（未做） |
 | 用命令行 | `01-product/cli.md` | `03-engineering/ADR-002-cli.md` | 视频/Office 文档（未做） |
 | 改 PDF 加密 | `ADR-003-pdf-encrypt.md` + `01-product/pdf.md` | `04-testing/pdf-encrypt.md` | 视频/Office |
 | 改批量 / zip | `03-engineering/ADR-001-batch-job.md` | `app/batch.py` | GTM |

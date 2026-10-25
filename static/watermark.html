@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="wm.title">文字水印</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css?v=20261025wm" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
+    <header class="header">
+      <div class="logo logo-image" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M8 22h10M8 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n="wm.title">文字水印</h1>
+        <p class="subtitle" data-i18n="wm.sub">给商品图加店名或说明。本机处理，不做铺满、不贴图。</p>
+      </div>
+    </header>
+    <main class="card">
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/tiff,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" multiple hidden />
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" data-i18n-aria="image.dropAria">
+        <p class="dropzone-title" data-i18n="image.drop">拖放图片到此处，或点击选择（可多选）</p>
+        <p class="dropzone-hint" data-i18n="image.dropHint">支持 JPG、PNG、WebP、BMP、TIFF · 单文件 50MB · 批量合计 200MB / 50 张 · 可分多次添加</p>
+      </section>
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-info"><span class="file-name" id="fileName"></span><span class="file-size" id="fileSize"></span></div>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear">清除</button>
+      </div>
+      <ul class="file-queue hidden" id="fileQueue"></ul>
+      <div class="preview-row hidden" id="previewRow"><img id="imagePreview" alt="" class="image-preview" data-i18n-aria="common.preview" /></div>
+      <div class="controls">
+        <label class="field">
+          <span class="field-label" data-i18n="wm.text">水印文字</span>
+          <input type="text" id="textInput" class="input" maxlength="40" data-i18n-placeholder="wm.textPh" placeholder="例如店铺名" />
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="wm.position">位置</span>
+          <select id="positionSelect" class="select">
+            <option value="bottom-right" data-i18n="wm.pos.br">右下</option>
+            <option value="bottom-left" data-i18n="wm.pos.bl">左下</option>
+            <option value="top-right" data-i18n="wm.pos.tr">右上</option>
+            <option value="top-left" data-i18n="wm.pos.tl">左上</option>
+            <option value="center" data-i18n="wm.pos.c">居中</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="wm.opacity">透明度（10～100）</span>
+          <input type="number" id="opacityInput" class="input" min="10" max="100" value="40" />
+        </label>
+        <button type="button" class="btn-primary btn-primary-image" id="submitBtn" disabled>
+          <span class="btn-text" data-i18n="wm.start">开始加水印</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </div>
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon">✓</div>
+        <div class="result-body">
+          <p class="result-title" data-i18n="wm.done">已加水印</p>
+          <p class="result-name" id="resultName"></p>
+          <p class="result-note" id="resultMeta"></p>
+          <ul class="result-errors hidden" id="resultErrors"></ul>
+        </div>
+        <a class="btn-download" id="downloadLink" download>下载图片</a>
+      </div>
+    </main>
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
+  </div>
+  <script src="/locales.js?v=20261025wm"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/watermark.js?v=20261025wm"></script>
+</body>
+</html>

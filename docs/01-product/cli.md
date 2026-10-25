@@ -8,7 +8,7 @@
 
 | 做 | 不做（首刀） |
 |---|---|
-| 图片压缩、格式/尺寸转换 | 视频转音频、视频压缩 |
+| 图片压缩、格式/尺寸转换、文字水印 | 视频转音频、视频压缩 |
 | 查看 / 清除 EXIF | Word / PPT 等 Office 转换 |
 | PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 便携 exe |
 
@@ -70,6 +70,21 @@ python -m app image convert photo.jpg --format webp --width 800 --height 800 --r
 | `--resize` | `fit` 等比不超出；`fill` 裁剪到精确宽高；`exact` 拉伸 | `fit` |
 
 `fill` / `exact` 必须同时给宽和高。
+
+### 4.2b 文字水印
+
+```bash
+python -m app image watermark photo.jpg --text 店铺名
+python -m app image watermark a.jpg b.png --text Shop --position top-left --opacity 50 -o marked.zip
+```
+
+| 参数 | 含义 | 默认 |
+|---|---|---|
+| `--text` | 水印文字，最多 40 字 | 必填 |
+| `--position` | `bottom-right` / `bottom-left` / `top-right` / `top-left` / `center` | `bottom-right` |
+| `--opacity` | 10～100 | `40` |
+
+不做铺满、不贴图。中文需要本机中文字体。
 
 ### 4.3 EXIF
 

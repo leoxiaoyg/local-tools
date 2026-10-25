@@ -19,6 +19,7 @@
 | 13 | `pdf encrypt a.pdf --user-pw secret -o locked.pdf` | 未加密 PDF | 产出文件；需要密码才能打开 | |
 | 14 | `pdf decrypt locked.pdf --password secret -o opened.pdf` | 上一步结果 | 产出文件；无需密码可开 | |
 | 15 | `pdf decrypt locked.pdf --password nope`（`--lang en`） | 上一步加密文件 | 退出非 0 | |
+| 16 | `image watermark a.jpg --text Shop -o wm.jpg` | 小 JPEG | 产出文件 | |
 
 可复跑脚本（项目根目录）：`python tests/cli_smoke.py`，通过时打印 `CLI_SMOKE_OK`。
 

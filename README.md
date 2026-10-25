@@ -11,6 +11,7 @@
 | 图片压缩 | `/image.html` | 尽量保持画质的前提下缩小体积，可指定上限；支持批量 zip |
 | 图片转换 | `/image-convert.html` | 格式转换（JPG / PNG / WebP）、等比缩放与裁剪；支持批量 zip |
 | EXIF 清除 | `/exif.html` | 查看并去掉拍摄时间、机型、GPS；免费 |
+| 文字水印 | `/watermark.html` | 店名/说明文字；位置 + 透明度；支持批量 zip |
 | JSON 格式化 | `/json.html` | 格式化、压缩、校验（纯浏览器，不上传服务器） |
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
 | CSV ↔ Excel | `/csv-excel.html` | CSV 与 `.xlsx` 互转 |
@@ -59,12 +60,13 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ## 命令行
 
-与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换、EXIF、PDF 合并压缩拆分与加密解密。视频与 Office 转换暂不提供。
+与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、EXIF、PDF 合并压缩拆分与加密解密。视频与 Office 转换暂不提供。
 
 ```bash
 python -m app --help
 python -m app --lang en image compress photo.jpg -o small.jpg
 python -m app image convert a.png b.png --format webp -o converted.zip
+python -m app image watermark photo.jpg --text 店铺名
 python -m app exif inspect photo.jpg
 python -m app exif strip *.jpg -o clean.zip
 python -m app pdf merge a.pdf b.pdf -o merged.pdf
@@ -92,6 +94,7 @@ local-tools/
 │   ├── video_compressor.py
 │   ├── image_compressor.py
 │   ├── image_transform.py
+│   ├── watermark.py      # 文字水印
 │   ├── csv_excel.py
 │   ├── doc_converter.py
 │   ├── batch.py          # 批量处理 + zip

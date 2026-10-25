@@ -30,6 +30,7 @@ from app.pdf_tools import (
     merge_pdfs,
     split_pdf,
 )
+from app.watermark import apply_text_watermark
 from app.video_compressor import RESOLUTIONS, VIDEO_OUTPUT, compress_video_file
 
 app = FastAPI(title="Local Tools", version="2.0.0")
@@ -359,6 +360,67 @@ async def transform_image_batch(
         return result.path, result.filename
 
     return _batch_zip_response(payload, handler, "converted-images.zip")
+
+
+@app.post("/api/image/watermark")
+async def watermark_image_file(
+    file: UploadFile = File(...),
+    text: str = Form(...),
+    position: str = Form("bottom-right"),
+    opacity: str = Form("40"),
+):
+    payload = await _read_image_uploads([file])
+    try:
+        result = apply_text_watermark(
+            payload[0][0],
+            payload[0][1],
+            text=text,
+            position=position,
+            opacity=_parse_opacity(opacity),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return FileResponse(
+        path=result.path,
+        media_type=result.mime,
+        filename=result.filename,
+        headers={
+            "X-Original-Size": str(result.original_size),
+            "X-Output-Size": str(result.output_size),
+            "X-Watermark-Message": quote(result.message, safe=""),
+        },
+        background=BackgroundTask(_cleanup, result.path),
+    )
+
+
+@app.post("/api/image/watermark-batch")
+async def watermark_image_batch(
+    files: list[UploadFile] = File(...),
+    text: str = Form(...),
+    position: str = Form("bottom-right"),
+    opacity: str = Form("40"),
+):
+    payload = await _read_image_uploads(files)
+    opacity_pct = _parse_opacity(opacity)
+
+    def handler(content: bytes, filename: str):
+        result = apply_text_watermark(
+            content,
+            filename,
+            text=text,
+            position=position,
+            opacity=opacity_pct,
+        )
+        return result.path, result.filename
+
+    return _batch_zip_response(payload, handler, "watermarked-images.zip")
+
+
+def _parse_opacity(raw: str) -> int:
+    try:
+        return int((raw or "").strip())
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="透明度请填写 10～100 的整数") from exc
 
 
 @app.post("/api/image/exif")

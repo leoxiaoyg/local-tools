@@ -15,6 +15,7 @@ from app.i18n import detect_cli_lang, translate_text
 from app.image_compressor import OUTPUT_FORMATS, compress_image
 from app.image_transform import EXPORT_FORMATS, transform_image
 from app.pdf_tools import DEFAULT_PERMISSIONS, compress_pdf, decrypt_pdf, encrypt_pdf, merge_pdfs, split_pdf
+from app.watermark import POSITIONS, apply_text_watermark
 
 HELP = {
     "zh": {
@@ -35,6 +36,10 @@ HELP = {
         "image": "图片工具",
         "compress": "压缩图片",
         "convert": "转换图片格式 / 尺寸",
+        "watermark": "给图片加文字水印",
+        "wm_text": "水印文字",
+        "wm_position": "位置：右下 / 左下 / 右上 / 左上 / 居中",
+        "wm_opacity": "透明度 10～100",
         "exif": "EXIF 工具",
         "inspect": "查看拍摄信息",
         "strip": "清除拍摄信息",
@@ -70,6 +75,10 @@ HELP = {
         "image": "Image tools",
         "compress": "Compress images",
         "convert": "Convert format / size",
+        "watermark": "Add a text watermark",
+        "wm_text": "Watermark text",
+        "wm_position": "Position: bottom-right / bottom-left / top-right / top-left / center",
+        "wm_opacity": "Opacity 10-100",
         "exif": "EXIF tools",
         "inspect": "Show shooting info",
         "strip": "Strip shooting info",
@@ -255,6 +264,41 @@ def cmd_image_convert(args: argparse.Namespace) -> int:
             ok, fail = write_batch_dir(files, handle, Path(args.output))
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        write_path(batch.zip_path, dest)
+        return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
+def cmd_image_watermark(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        if not (args.text or "").strip():
+            return _die(lang, "请填写水印文字")
+        paths = collect_paths(args.inputs, lang)
+        files = read_files(paths)
+
+        def handle(data: bytes, name: str):
+            return apply_text_watermark(
+                data,
+                name,
+                text=args.text,
+                position=args.position,
+                opacity=args.opacity,
+            )
+
+        if len(files) == 1:
+            result = handle(*files[0])
+            dest = resolve_dest(args.output, single_name=result.filename, default_zip="watermarked-images.zip", count=1)
+            write_path(result.path, dest)
+            return report_written(lang, dest, _t(lang, result.message))
+
+        if args.output and Path(args.output).is_dir():
+            ok, fail = write_batch_dir(files, handle, Path(args.output))
+            return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
+
+        dest = resolve_dest(args.output, single_name="watermarked.jpg", default_zip="watermarked-images.zip", count=len(files))
         batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
@@ -480,6 +524,14 @@ def build_parser(lang: str) -> argparse.ArgumentParser:
     convert.add_argument("--height", type=int, default=None, help=text["height"])
     convert.add_argument("--resize", choices=("fit", "fill", "exact"), default="fit", help=text["resize"])
     convert.set_defaults(func=cmd_image_convert)
+
+    watermark = image_cmds.add_parser("watermark", help=text["watermark"], parents=[lang_parent])
+    watermark.add_argument("inputs", nargs="+", help=text["inputs"])
+    watermark.add_argument("-o", "--output", help=text["output"])
+    watermark.add_argument("--text", default="", help=text["wm_text"])
+    watermark.add_argument("--position", choices=POSITIONS, default="bottom-right", help=text["wm_position"])
+    watermark.add_argument("--opacity", type=int, default=40, help=text["wm_opacity"])
+    watermark.set_defaults(func=cmd_image_watermark)
 
     exif = groups.add_parser("exif", help=text["exif"], parents=[lang_parent])
     exif_cmds = exif.add_subparsers(dest="cmd", required=True)

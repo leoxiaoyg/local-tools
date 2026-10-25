@@ -170,6 +170,12 @@ def main() -> int:
         wrong = run(["pdf", "decrypt", str(locked), "--password", "nope", "-o", str(work / "bad.pdf")], lang="en")
         expect_fail("15 bad password", wrong)
 
+        marked = work / "a_wm.jpg"
+        r = run(["image", "watermark", str(img1), "--text", "Shop", "-o", str(marked)])
+        expect_ok("16 watermark", r)
+        if not marked.exists() or marked.stat().st_size < 1:
+            raise AssertionError("16 no watermarked file")
+
         print("CLI_SMOKE_OK")
         return 0
     finally:
