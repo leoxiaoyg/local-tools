@@ -1,4 +1,4 @@
-"""PDF 合并 / 压缩 / 拆分（PyMuPDF）。加密留到下一迭代。"""
+"""PDF 合并 / 压缩 / 拆分 / 加密（PyMuPDF）。"""
 
 from __future__ import annotations
 
@@ -13,6 +13,14 @@ MAX_PDF_BYTES = 80 * 1024 * 1024
 MAX_MERGE_FILES = 30
 MAX_MERGE_TOTAL_BYTES = 200 * 1024 * 1024
 MAX_SPLIT_PAGES = 400
+
+PERMISSION_FLAGS = {
+    "print": int(fitz.PDF_PERM_PRINT) | int(fitz.PDF_PERM_PRINT_HQ),
+    "modify": int(fitz.PDF_PERM_MODIFY) | int(fitz.PDF_PERM_ASSEMBLE),
+    "copy": int(fitz.PDF_PERM_COPY),
+    "annotate": int(fitz.PDF_PERM_ANNOTATE) | int(fitz.PDF_PERM_FORM),
+}
+DEFAULT_PERMISSIONS = tuple(PERMISSION_FLAGS)
 
 COMPRESS_PRESETS = {
     "light": {
@@ -49,6 +57,86 @@ class PdfResult:
 
 def list_compress_presets() -> list[dict]:
     return [{"id": key, "label": meta["label"]} for key, meta in COMPRESS_PRESETS.items()]
+
+
+def _permission_mask(allow: list[str] | None) -> int:
+    selected = list(DEFAULT_PERMISSIONS if allow is None else allow)
+    mask = int(fitz.PDF_PERM_ACCESSIBILITY)
+    for item in selected:
+        if item not in PERMISSION_FLAGS:
+            raise ValueError(f"不支持的权限项: {item}")
+        mask |= PERMISSION_FLAGS[item]
+    return mask
+
+
+def encrypt_pdf(
+    content: bytes,
+    filename: str,
+    user_password: str,
+    owner_password: str = "",
+    allow: list[str] | None = None,
+) -> PdfResult:
+    _ensure_pdf_name(filename)
+    _ensure_size(content, filename)
+    password = (user_password or "").strip()
+    if not password:
+        raise ValueError("请填写打开密码")
+    owner = (owner_password or "").strip() or password
+    doc = _open_pdf(content, filename)
+    try:
+        stem = Path(filename).stem or "document"
+        out_name = f"{stem}_locked.pdf"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            path = Path(tmp.name)
+        doc.save(
+            path,
+            garbage=4,
+            deflate=True,
+            encryption=fitz.PDF_ENCRYPT_AES_256,
+            owner_pw=owner,
+            user_pw=password,
+            permissions=_permission_mask(allow),
+        )
+        pages = doc.page_count
+    finally:
+        doc.close()
+
+    return PdfResult(
+        path=path,
+        filename=out_name,
+        mime="application/pdf",
+        original_size=len(content),
+        output_size=path.stat().st_size,
+        message="已加密（AES-256）。密码只在本机使用，不是法律或合规认证",
+        pages=pages,
+    )
+
+
+def decrypt_pdf(content: bytes, filename: str, password: str) -> PdfResult:
+    _ensure_pdf_name(filename)
+    _ensure_size(content, filename)
+    if not (password or "").strip():
+        raise ValueError("请填写解密密码")
+    doc = _open_pdf(content, filename, password=password.strip())
+    try:
+        stem = Path(filename).stem or "document"
+        out_name = f"{stem}_unlocked.pdf"
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
+            path = Path(tmp.name)
+        doc.save(path, garbage=4, deflate=True, encryption=fitz.PDF_ENCRYPT_NONE)
+        pages = doc.page_count
+    finally:
+        doc.close()
+
+    return PdfResult(
+        path=path,
+        filename=out_name,
+        mime="application/pdf",
+        original_size=len(content),
+        output_size=path.stat().st_size,
+        message="已生成无密码副本",
+        pages=pages,
+    )
 
 
 def merge_pdfs(files: list[tuple[bytes, str]]) -> PdfResult:
@@ -218,16 +306,21 @@ def _ensure_size(content: bytes, filename: str) -> None:
         raise ValueError(f"{Path(filename).name} 过大，单文件最大 80MB")
 
 
-def _open_pdf(content: bytes, filename: str) -> fitz.Document:
+def _open_pdf(content: bytes, filename: str, password: str | None = None) -> fitz.Document:
     try:
         doc = fitz.open(stream=content, filetype="pdf")
     except Exception as exc:
         raise ValueError(f"无法读取 PDF: {Path(filename).name}") from exc
 
-    if getattr(doc, "needs_pass", False) or getattr(doc, "is_encrypted", False):
-        if not doc.authenticate(""):
+    locked = bool(getattr(doc, "needs_pass", False) or getattr(doc, "is_encrypted", False))
+    if locked:
+        opened = doc.authenticate(password) if password is not None else doc.authenticate("")
+        if not opened:
+            name = Path(filename).name
             doc.close()
-            raise ValueError(f"{Path(filename).name} 已加密，暂不支持（加密/解密将在后续提供）")
+            if password is None:
+                raise ValueError(f"{name} 已加密，请先解密或提供密码")
+            raise ValueError("密码不正确")
 
     if doc.page_count < 1:
         doc.close()

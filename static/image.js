@@ -79,10 +79,7 @@ function setFiles(files) {
     compressBtn.disabled = false;
     btnText.textContent = startLabel();
 
-    fileQueue.innerHTML = files
-      .map((file) => `<li><span class="queue-name">${escapeHtml(file.name)}</span><span class="queue-size">${formatBytes(file.size)}</span></li>`)
-      .join("");
-    fileQueue.classList.toggle("hidden", !files.length);
+    renderQueue();
 
     if (files.length === 1) {
       previewUrl = URL.createObjectURL(files[0]);
@@ -103,6 +100,19 @@ function setFiles(files) {
   }
   hideResult();
   hideStatus();
+}
+
+function renderQueue() {
+  const removable = selectedFiles.length > 1;
+  fileQueue.innerHTML = selectedFiles
+    .map((file, index) => {
+      const remove = removable
+        ? `<button type="button" class="queue-remove" data-remove-index="${index}">${t("common.removeFile")}</button>`
+        : "";
+      return `<li><span class="queue-name">${escapeHtml(file.name)}</span><span class="queue-side"><span class="queue-size">${formatBytes(file.size)}</span>${remove}</span></li>`;
+    })
+    .join("");
+  fileQueue.classList.toggle("hidden", !selectedFiles.length);
 }
 
 function escapeHtml(text) {
@@ -185,7 +195,10 @@ function paintResult() {
 }
 
 function refreshI18n() {
-  if (selectedFiles.length) fileName.textContent = filesCaption(selectedFiles);
+  if (selectedFiles.length) {
+    fileName.textContent = filesCaption(selectedFiles);
+    renderQueue();
+  }
   if (busy) {
     btnText.textContent = selectedFiles.length > 1 ? t("image.batchWorking") : t("image.working");
   } else {
@@ -328,6 +341,11 @@ fileInput.addEventListener("change", () => {
 clearBtn.addEventListener("click", () => {
   fileInput.value = "";
   setFiles([]);
+});
+fileQueue.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-remove-index]");
+  if (!btn) return;
+  setFiles(selectedFiles.filter((_, index) => index !== Number(btn.dataset.removeIndex)));
 });
 
 compressBtn.addEventListener("click", compress);

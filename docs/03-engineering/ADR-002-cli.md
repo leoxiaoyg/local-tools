@@ -11,8 +11,8 @@ Web 已能批量处理图片、EXIF、PDF。脚本用户和跨境卖家批量场
 ## Decision
 
 1. 入口：`python -m app`（`app/__main__.py` → `app/cli.py`）。`argparse` 子命令，不加 Click / Typer。
-2. 首刀命令：`image compress|convert`、`exif inspect|strip`、`pdf merge|compress|split`。
-3. 处理函数只调用现有 `compress_image` / `transform_image` / `inspect_exif` / `strip_exif` / `merge_pdfs` / `compress_pdf` / `split_pdf` 与 `run_batch`。禁止复制算法。
+2. 首刀命令：`image compress|convert`、`exif inspect|strip`、`pdf merge|compress|split`。加密 / 解密后补，仍走同一入口：`pdf encrypt|decrypt`（见 ADR-003）。
+3. 处理函数只调用现有 `compress_image` / `transform_image` / `inspect_exif` / `strip_exif` / `merge_pdfs` / `compress_pdf` / `split_pdf` / `encrypt_pdf` / `decrypt_pdf` 与 `run_batch`。禁止复制算法。
 4. 读本地路径，写本地路径。不启动 uvicorn，不发 HTTP。
 5. 输出约定：
    - 1 个输入：写出单个结果文件（`-o` 为文件；省略则写到当前目录，文件名跟 handler）。
@@ -24,7 +24,7 @@ Web 已能批量处理图片、EXIF、PDF。脚本用户和跨境卖家批量场
 
 - 视频转音频 / 视频压缩
 - 文档 Office 转换（Word / PPT）
-- PDF 加密
+- PDF 加密（2026-10-25 已按本 ADR 接入，细节见 ADR-003）
 - 便携 exe
 - 守护进程、监听目录、云同步
 

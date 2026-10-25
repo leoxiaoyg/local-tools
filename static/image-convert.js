@@ -106,10 +106,7 @@ function setFiles(files) {
     filePreview.classList.remove("hidden");
     submitBtn.disabled = false;
     btnText.textContent = startLabel();
-    fileQueue.innerHTML = files
-      .map((file) => `<li><span class="queue-name">${escapeHtml(file.name)}</span><span class="queue-size">${formatBytes(file.size)}</span></li>`)
-      .join("");
-    fileQueue.classList.toggle("hidden", !files.length);
+    renderQueue();
     if (files.length === 1) {
       previewUrl = URL.createObjectURL(files[0]);
       imagePreview.src = previewUrl;
@@ -127,6 +124,19 @@ function setFiles(files) {
     submitBtn.disabled = true;
     btnText.textContent = t("convert.start");
   }
+}
+
+function renderQueue() {
+  const removable = selectedFiles.length > 1;
+  fileQueue.innerHTML = selectedFiles
+    .map((file, index) => {
+      const remove = removable
+        ? `<button type="button" class="queue-remove" data-remove-index="${index}">${t("common.removeFile")}</button>`
+        : "";
+      return `<li><span class="queue-name">${escapeHtml(file.name)}</span><span class="queue-side"><span class="queue-size">${formatBytes(file.size)}</span>${remove}</span></li>`;
+    })
+    .join("");
+  fileQueue.classList.toggle("hidden", !selectedFiles.length);
 }
 
 function paintResult() {
@@ -150,7 +160,10 @@ function paintResult() {
 }
 
 function refreshI18n() {
-  if (selectedFiles.length) fileName.textContent = filesCaption(selectedFiles);
+  if (selectedFiles.length) {
+    fileName.textContent = filesCaption(selectedFiles);
+    renderQueue();
+  }
   if (busy) {
     btnText.textContent = selectedFiles.length > 1 ? t("convert.batchWorking") : t("convert.working");
   } else {
@@ -256,6 +269,11 @@ fileInput.addEventListener("change", () => {
 clearBtn.addEventListener("click", () => {
   fileInput.value = "";
   setFiles([]);
+});
+fileQueue.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-remove-index]");
+  if (!btn) return;
+  setFiles(selectedFiles.filter((_, index) => index !== Number(btn.dataset.removeIndex)));
 });
 submitBtn.addEventListener("click", submit);
 document.addEventListener("lt-i18n", () => {

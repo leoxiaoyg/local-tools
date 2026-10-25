@@ -6,6 +6,11 @@ const splitModeField = document.getElementById("splitModeField");
 const splitModeSelect = document.getElementById("splitModeSelect");
 const rangeField = document.getElementById("rangeField");
 const rangeInput = document.getElementById("rangeInput");
+const encryptFields = document.getElementById("encryptFields");
+const userPwInput = document.getElementById("userPwInput");
+const ownerPwInput = document.getElementById("ownerPwInput");
+const decryptField = document.getElementById("decryptField");
+const unlockPwInput = document.getElementById("unlockPwInput");
 const dropzone = document.getElementById("dropzone");
 const dropHint = document.getElementById("dropHint");
 const fileInput = document.getElementById("fileInput");
@@ -91,11 +96,25 @@ function setFiles(files) {
   fileName.textContent = filesCaption(files);
   fileSize.textContent = formatBytes(total);
   filePreview.classList.remove("hidden");
-  fileQueue.innerHTML = files
-    .map((file, index) => `<li><span class="queue-name">${index + 1}. ${escapeHtml(file.name)}</span><span class="queue-size">${formatBytes(file.size)}</span></li>`)
-    .join("");
-  fileQueue.classList.toggle("hidden", !files.length);
+  renderQueue();
   submitBtn.disabled = actionSelect.value === "merge" ? files.length < 2 : !files.length;
+}
+
+function renderQueue() {
+  const removable = selectedFiles.length > 1;
+  fileQueue.innerHTML = selectedFiles
+    .map((file, index) => {
+      const remove = removable
+        ? `<button type="button" class="queue-remove" data-remove-index="${index}">${t("common.removeFile")}</button>`
+        : "";
+      return `<li><span class="queue-name">${index + 1}. ${escapeHtml(file.name)}</span><span class="queue-side"><span class="queue-size">${formatBytes(file.size)}</span>${remove}</span></li>`;
+    })
+    .join("");
+  fileQueue.classList.toggle("hidden", !selectedFiles.length);
+}
+
+function collectAllow() {
+  return [...document.querySelectorAll('input[name="allow"]:checked')].map((el) => el.value);
 }
 
 function applyActionChrome() {
@@ -104,6 +123,8 @@ function applyActionChrome() {
   presetField.classList.toggle("hidden", action !== "compress");
   splitModeField.classList.toggle("hidden", action !== "split");
   rangeField.classList.toggle("hidden", action !== "split" || splitModeSelect.value !== "range");
+  encryptFields.classList.toggle("hidden", action !== "encrypt");
+  decryptField.classList.toggle("hidden", action !== "decrypt");
   fileInput.multiple = action !== "split";
   dropHint.textContent = action === "split" ? t("pdf.dropOne") : t("pdf.dropMany");
 }
@@ -161,7 +182,10 @@ function paintResult() {
 
 function refreshI18n() {
   applyActionChrome();
-  if (selectedFiles.length) fileName.textContent = filesCaption(selectedFiles);
+  if (selectedFiles.length) {
+    fileName.textContent = filesCaption(selectedFiles);
+    renderQueue();
+  }
   if (!busy) btnText.textContent = t("pdf.start");
   if (!resultBox.classList.contains("hidden")) paintResult();
   loadPresets();
@@ -172,6 +196,15 @@ async function submit() {
   if (!selectedFiles.length) return;
   if (action === "merge" && selectedFiles.length < 2) {
     showStatus(t("pdf.needTwo"), true);
+    return;
+  }
+
+  if (action === "encrypt" && !userPwInput.value.trim()) {
+    showStatus(t("pdf.needPassword"), true);
+    return;
+  }
+  if (action === "decrypt" && !unlockPwInput.value.trim()) {
+    showStatus(t("pdf.needUnlock"), true);
     return;
   }
 
@@ -198,6 +231,30 @@ async function submit() {
       formData.append("file", selectedFiles[0]);
       url = "/api/pdf/compress";
       fallbackName = "compressed.pdf";
+    }
+  } else if (action === "encrypt") {
+    formData.append("user_password", userPwInput.value);
+    formData.append("owner_password", ownerPwInput.value);
+    formData.append("allow", collectAllow().join(","));
+    if (selectedFiles.length > 1) {
+      selectedFiles.forEach((file) => formData.append("files", file));
+      url = "/api/pdf/encrypt-batch";
+      fallbackName = "locked-pdfs.zip";
+    } else {
+      formData.append("file", selectedFiles[0]);
+      url = "/api/pdf/encrypt";
+      fallbackName = "locked.pdf";
+    }
+  } else if (action === "decrypt") {
+    formData.append("password", unlockPwInput.value);
+    if (selectedFiles.length > 1) {
+      selectedFiles.forEach((file) => formData.append("files", file));
+      url = "/api/pdf/decrypt-batch";
+      fallbackName = "unlocked-pdfs.zip";
+    } else {
+      formData.append("file", selectedFiles[0]);
+      url = "/api/pdf/decrypt";
+      fallbackName = "unlocked.pdf";
     }
   } else {
     formData.append("file", selectedFiles[0]);
@@ -263,6 +320,11 @@ fileInput.addEventListener("change", () => {
 clearBtn.addEventListener("click", () => {
   fileInput.value = "";
   setFiles([]);
+});
+fileQueue.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-remove-index]");
+  if (!btn) return;
+  setFiles(selectedFiles.filter((_, index) => index !== Number(btn.dataset.removeIndex)));
 });
 actionSelect.addEventListener("change", applyActionUI);
 splitModeSelect.addEventListener("change", applyActionUI);

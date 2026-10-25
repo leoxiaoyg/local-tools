@@ -10,7 +10,7 @@
 |---|---|
 | 图片压缩、格式/尺寸转换 | 视频转音频、视频压缩 |
 | 查看 / 清除 EXIF | Word / PPT 等 Office 转换 |
-| PDF 合并、压缩、按页拆分或抽页 | PDF 加密、便携 exe |
+| PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 便携 exe |
 
 和网页是同一套处理函数。网页能压成什么样，命令行就是什么样。
 
@@ -90,6 +90,8 @@ python -m app pdf compress invoice.pdf --preset strong
 python -m app pdf compress *.pdf -o compressed-pdfs.zip
 python -m app pdf split doc.pdf --mode pages -o pages.zip
 python -m app pdf split doc.pdf --mode range --pages 1-3,5 -o part.pdf
+python -m app pdf encrypt invoice.pdf --user-pw secret --no-copy -o locked.pdf
+python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
 ```
 
 | 参数 | 含义 |
@@ -97,8 +99,12 @@ python -m app pdf split doc.pdf --mode range --pages 1-3,5 -o part.pdf
 | `--preset` | `light` / `standard` / `strong`，默认 `standard` |
 | `--mode pages` | 一页一个 PDF，打成 zip |
 | `--mode range` | 必须带 `--pages`，如 `1-3,5`，输出一个 PDF |
+| `--user-pw` | 打开密码（加密必填） |
+| `--owner-pw` | 权限密码，默认与打开密码相同 |
+| `--no-print` / `--no-modify` / `--no-copy` / `--no-annotate` | 去掉对应权限；全加则只能打开查看 |
+| `--password` | 解密密码 |
 
-合并至少 2 个文件。已加密的 PDF 暂不支持。
+合并至少 2 个文件。合并 / 压缩 / 拆分遇到已加密文件时，请先 `pdf decrypt`。密码只在本机使用，不是法律或合规认证。
 
 ## 5. 上限（与网页相同）
 

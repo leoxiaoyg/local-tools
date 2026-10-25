@@ -23,7 +23,8 @@ Focus：**把 RD 方案落成可运行的 Python 代码**。
 3. zip 内路径只用 `Path(name).name`，防路径穿越
 4. 新依赖写进 `requirements.txt`；大模型类放 optional
 5. 改完至少做一条本地冒烟（Python 直接调 handler 或 curl）
-6. 同一次改动更新自己改动对应的文档草案（README / CLI 说明书 / 上限表）。文档总责是 PM，BE 不得留「回头再写」
+6. 新路由加完后，核对用户正在访问的那个 uvicorn 是否已加载新代码。无 `--reload` 的旧进程必须重启。未注册的 POST 会落到根路径 `StaticFiles`，页面上显示 `Method Not Allowed`
+7. 同一次改动更新自己改动对应的文档草案（README / CLI 说明书 / 上限表）。文档总责是 PM，BE 不得留「回头再写」
 
 ## 与 RD / FE / QA
 

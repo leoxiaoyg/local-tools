@@ -14,7 +14,7 @@ from app.exif_tools import inspect_exif, strip_exif
 from app.i18n import detect_cli_lang, translate_text
 from app.image_compressor import OUTPUT_FORMATS, compress_image
 from app.image_transform import EXPORT_FORMATS, transform_image
-from app.pdf_tools import compress_pdf, merge_pdfs, split_pdf
+from app.pdf_tools import DEFAULT_PERMISSIONS, compress_pdf, decrypt_pdf, encrypt_pdf, merge_pdfs, split_pdf
 
 HELP = {
     "zh": {
@@ -42,6 +42,15 @@ HELP = {
         "merge": "合并多个 PDF",
         "pdf_compress": "压缩 PDF",
         "split": "拆分或提取页",
+        "encrypt": "加密 PDF 并设置权限",
+        "decrypt": "已有密码时生成无锁副本",
+        "user_pw": "打开文件的密码",
+        "owner_pw": "权限密码，默认与打开密码相同",
+        "password": "解密密码",
+        "no_print": "禁止打印",
+        "no_modify": "禁止修改",
+        "no_copy": "禁止复制文本",
+        "no_annotate": "禁止批注",
     },
     "en": {
         "prog": "Process images and PDFs locally. Does not use HTTP.",
@@ -68,6 +77,15 @@ HELP = {
         "merge": "Merge PDFs",
         "pdf_compress": "Compress PDFs",
         "split": "Split or extract pages",
+        "encrypt": "Encrypt a PDF and set permissions",
+        "decrypt": "Make an unlocked copy when you already know the password",
+        "user_pw": "Password to open the file",
+        "owner_pw": "Owner password. Defaults to the open password",
+        "password": "Password to unlock",
+        "no_print": "Disallow printing",
+        "no_modify": "Disallow changes",
+        "no_copy": "Disallow copying text",
+        "no_annotate": "Disallow annotations",
     },
 }
 
@@ -361,6 +379,81 @@ def cmd_pdf_split(args: argparse.Namespace) -> int:
         return _die(lang, str(exc))
 
 
+def _allow_from_flags(args: argparse.Namespace) -> list[str]:
+    blocked = {
+        "print": args.no_print,
+        "modify": args.no_modify,
+        "copy": args.no_copy,
+        "annotate": args.no_annotate,
+    }
+    return [key for key in DEFAULT_PERMISSIONS if not blocked[key]]
+
+
+def cmd_pdf_encrypt(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        paths = collect_paths(args.inputs, lang)
+        files = read_files(paths)
+        password = args.user_pw
+        if not password:
+            return _die(lang, "请填写打开密码")
+
+        def handle(data: bytes, name: str):
+            return encrypt_pdf(
+                data,
+                name,
+                user_password=password,
+                owner_password=args.owner_pw or "",
+                allow=_allow_from_flags(args),
+            )
+
+        if len(files) == 1:
+            result = handle(*files[0])
+            dest = resolve_dest(args.output, single_name=result.filename, default_zip="locked-pdfs.zip", count=1)
+            write_path(result.path, dest)
+            return report_written(lang, dest, _t(lang, result.message))
+
+        if args.output and Path(args.output).is_dir():
+            ok, fail = write_batch_dir(files, handle, Path(args.output))
+            return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
+
+        dest = resolve_dest(args.output, single_name="locked.pdf", default_zip="locked-pdfs.zip", count=len(files))
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        write_path(batch.zip_path, dest)
+        return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
+def cmd_pdf_decrypt(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        paths = collect_paths(args.inputs, lang)
+        files = read_files(paths)
+        if not args.password:
+            return _die(lang, "请填写解密密码")
+
+        def handle(data: bytes, name: str):
+            return decrypt_pdf(data, name, args.password)
+
+        if len(files) == 1:
+            result = handle(*files[0])
+            dest = resolve_dest(args.output, single_name=result.filename, default_zip="unlocked-pdfs.zip", count=1)
+            write_path(result.path, dest)
+            return report_written(lang, dest, _t(lang, result.message))
+
+        if args.output and Path(args.output).is_dir():
+            ok, fail = write_batch_dir(files, handle, Path(args.output))
+            return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
+
+        dest = resolve_dest(args.output, single_name="unlocked.pdf", default_zip="unlocked-pdfs.zip", count=len(files))
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        write_path(batch.zip_path, dest)
+        return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
 def build_parser(lang: str) -> argparse.ArgumentParser:
     text = HELP[lang]
     lang_parent = argparse.ArgumentParser(add_help=False)
@@ -421,6 +514,23 @@ def build_parser(lang: str) -> argparse.ArgumentParser:
     split.add_argument("--mode", choices=("pages", "range"), default="pages", help=text["split_mode"])
     split.add_argument("--pages", default="", help=text["pages"])
     split.set_defaults(func=cmd_pdf_split)
+
+    encrypt = pdf_cmds.add_parser("encrypt", help=text["encrypt"], parents=[lang_parent])
+    encrypt.add_argument("inputs", nargs="+", help=text["inputs"])
+    encrypt.add_argument("-o", "--output", help=text["output"])
+    encrypt.add_argument("--user-pw", default="", help=text["user_pw"])
+    encrypt.add_argument("--owner-pw", default="", help=text["owner_pw"])
+    encrypt.add_argument("--no-print", action="store_true", help=text["no_print"])
+    encrypt.add_argument("--no-modify", action="store_true", help=text["no_modify"])
+    encrypt.add_argument("--no-copy", action="store_true", help=text["no_copy"])
+    encrypt.add_argument("--no-annotate", action="store_true", help=text["no_annotate"])
+    encrypt.set_defaults(func=cmd_pdf_encrypt)
+
+    decrypt = pdf_cmds.add_parser("decrypt", help=text["decrypt"], parents=[lang_parent])
+    decrypt.add_argument("inputs", nargs="+", help=text["inputs"])
+    decrypt.add_argument("-o", "--output", help=text["output"])
+    decrypt.add_argument("--password", default="", help=text["password"])
+    decrypt.set_defaults(func=cmd_pdf_decrypt)
 
     return parser
 

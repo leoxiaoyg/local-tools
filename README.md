@@ -15,7 +15,7 @@
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
 | CSV ↔ Excel | `/csv-excel.html` | CSV 与 `.xlsx` 互转 |
 | 文档转换 | `/doc-convert.html` | 图片/PDF/OFD/Word/PPT 互转 |
-| PDF 工具 | `/pdf.html` | 合并、压缩、按页拆分 / 提取页 |
+| PDF 工具 | `/pdf.html` | 合并、压缩、按页拆分 / 提取页、加密 / 解密 |
 
 界面支持中文 / English，右上角切换，偏好存在本机。接口错误文案跟随 `Accept-Language`。
 
@@ -59,7 +59,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ## 命令行
 
-与 Web 共用同一套处理函数，不走 HTTP。首刀覆盖图片压缩 / 转换、EXIF、PDF 合并压缩拆分。视频与 Office 转换暂不提供。
+与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换、EXIF、PDF 合并压缩拆分与加密解密。视频与 Office 转换暂不提供。
 
 ```bash
 python -m app --help
@@ -70,6 +70,8 @@ python -m app exif strip *.jpg -o clean.zip
 python -m app pdf merge a.pdf b.pdf -o merged.pdf
 python -m app pdf compress invoice.pdf --preset strong
 python -m app pdf split doc.pdf --mode range --pages 1-3,5
+python -m app pdf encrypt invoice.pdf --user-pw secret -o locked.pdf
+python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
 ```
 
 `--lang zh|en` 控制提示语言，也可设环境变量 `LT_LANG`。多文件默认打成 zip；`-o` 指向已有目录时逐个写出。
@@ -93,12 +95,13 @@ local-tools/
 │   ├── csv_excel.py
 │   ├── doc_converter.py
 │   ├── batch.py          # 批量处理 + zip
-│   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分
+│   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分 / 加密
 │   ├── exif_tools.py     # EXIF 查看 / 清除
 │   ├── i18n.py           # Web / CLI 的 zh / en
 │   ├── cli.py            # 命令行入口（python -m app）
 │   └── __main__.py
 ├── static/               # 前端页面与静态资源（含 locales.js / i18n.js）
+├── tests/                # CLI 冒烟：python tests/cli_smoke.py
 ├── docs/                 # Wiki、说明书、ADR、测试清单（入口：docs/00-governance/wiki.md）
 ├── requirements.txt
 ├── run.bat               # Windows 启动脚本

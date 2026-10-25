@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title data-i18n="pdf.title">PDF 工具</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
+  <link rel="stylesheet" href="/styles.css?v=20261025q" />
 </head>
 <body>
   <div class="page">
@@ -22,7 +22,7 @@
       </div>
       <div>
         <h1 data-i18n="pdf.title">PDF 工具</h1>
-        <p class="subtitle" data-i18n="pdf.sub">合并、压缩、拆分，全部在本机处理</p>
+        <p class="subtitle" data-i18n="pdf.sub">合并、压缩、拆分、加密，全部在本机处理</p>
       </div>
     </header>
 
@@ -33,6 +33,8 @@
           <option value="merge" data-i18n="pdf.merge">合并多个 PDF</option>
           <option value="compress" data-i18n="pdf.compress">压缩 PDF</option>
           <option value="split" data-i18n="pdf.split">拆分 / 提取页</option>
+          <option value="encrypt" data-i18n="pdf.encrypt">加密 / 权限</option>
+          <option value="decrypt" data-i18n="pdf.decrypt">我有密码，生成无密码副本</option>
         </select>
         <p class="field-hint" id="actionHint"></p>
       </label>
@@ -53,6 +55,32 @@
       <label class="field hidden" id="rangeField">
         <span class="field-label" data-i18n="pdf.range">页码范围</span>
         <input type="text" id="rangeInput" class="input" data-i18n-placeholder="pdf.rangePh" placeholder="例如 1-3,5" />
+      </label>
+
+      <div class="field hidden" id="encryptFields">
+        <label class="field">
+          <span class="field-label" data-i18n="pdf.userPw">打开密码</span>
+          <input type="password" id="userPwInput" class="input" autocomplete="new-password" data-i18n-placeholder="pdf.userPwPh" placeholder="打开文件时需要" />
+        </label>
+        <label class="field">
+          <span class="field-label" data-i18n="pdf.ownerPw">权限密码（可选）</span>
+          <input type="password" id="ownerPwInput" class="input" autocomplete="new-password" data-i18n-placeholder="pdf.ownerPwPh" placeholder="默认与打开密码相同" />
+        </label>
+        <fieldset class="field">
+          <legend class="field-label" data-i18n="pdf.allow">允许的操作</legend>
+          <ul class="perm-list">
+            <li><label><input type="checkbox" name="allow" value="print" checked /> <span data-i18n="pdf.perm.print">打印</span></label></li>
+            <li><label><input type="checkbox" name="allow" value="modify" checked /> <span data-i18n="pdf.perm.modify">修改</span></label></li>
+            <li><label><input type="checkbox" name="allow" value="copy" checked /> <span data-i18n="pdf.perm.copy">复制文本</span></label></li>
+            <li><label><input type="checkbox" name="allow" value="annotate" checked /> <span data-i18n="pdf.perm.annotate">批注</span></label></li>
+          </ul>
+          <p class="field-hint" data-i18n="pdf.allowHint">全不勾选则只能打开查看。有助于控制谁能打开，不是法律或合规认证。</p>
+        </fieldset>
+      </div>
+
+      <label class="field hidden" id="decryptField">
+        <span class="field-label" data-i18n="pdf.unlockPw">解密密码</span>
+        <input type="password" id="unlockPwInput" class="input" autocomplete="current-password" data-i18n-placeholder="pdf.unlockPwPh" placeholder="当前文件的打开密码" />
       </label>
 
       <input type="file" id="fileInput" accept="application/pdf,.pdf" multiple hidden />
@@ -90,8 +118,8 @@
     </main>
     <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
   </div>
-  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="/locales.js?v=20261025q"></script>
   <script src="i18n.js?v=20261025i18n"></script>
-  <script src="/pdf.js?v=20261025i18n"></script>
+  <script src="/pdf.js?v=20261025q"></script>
 </body>
 </html>

@@ -108,7 +108,10 @@ function renderQueue() {
   fileQueue.innerHTML = selectedFiles
     .map((file, index) => {
       const current = index === activeIndex ? " is-active" : "";
-      return `<li class="queue-item${current}" data-index="${index}"><span class="queue-name">${index + 1}. ${escapeHtml(file.name)}</span><span class="queue-size">${formatBytes(file.size)}</span></li>`;
+      const remove = selectedFiles.length > 1
+        ? `<button type="button" class="queue-remove" data-remove-index="${index}">${t("common.removeFile")}</button>`
+        : "";
+      return `<li class="queue-item${current}" data-index="${index}"><span class="queue-name">${index + 1}. ${escapeHtml(file.name)}</span><span class="queue-side"><span class="queue-size">${formatBytes(file.size)}</span>${remove}</span></li>`;
     })
     .join("");
   fileQueue.classList.toggle("hidden", !selectedFiles.length);
@@ -179,7 +182,10 @@ function paintResult() {
 }
 
 function refreshI18n() {
-  if (selectedFiles.length) fileName.textContent = filesCaption(selectedFiles);
+  if (selectedFiles.length) {
+    fileName.textContent = filesCaption(selectedFiles);
+    renderQueue();
+  }
   if (busy) {
     btnText.textContent = t("common.processing");
   } else {
@@ -270,6 +276,11 @@ clearBtn.addEventListener("click", () => {
   setFiles([]);
 });
 fileQueue.addEventListener("click", (e) => {
+  const removeBtn = e.target.closest("[data-remove-index]");
+  if (removeBtn) {
+    setFiles(selectedFiles.filter((_, index) => index !== Number(removeBtn.dataset.removeIndex)));
+    return;
+  }
   const item = e.target.closest("[data-index]");
   if (!item) return;
   activeIndex = Number(item.dataset.index);

@@ -16,10 +16,15 @@
 | 10 | `pdf split merged.pdf --mode pages -o pages.zip` | 合并结果 | zip 内页数 = 源页数 | |
 | 11 | `pdf split merged.pdf --mode range --pages 1 -o p1.pdf` | 同上 | 单页 PDF | |
 | 12 | `pdf merge only-one.pdf` | 1 个文件 | 退出非 0（至少 2 个）或先报找不到 | |
+| 13 | `pdf encrypt a.pdf --user-pw secret -o locked.pdf` | 未加密 PDF | 产出文件；需要密码才能打开 | |
+| 14 | `pdf decrypt locked.pdf --password secret -o opened.pdf` | 上一步结果 | 产出文件；无需密码可开 | |
+| 15 | `pdf decrypt locked.pdf --password nope`（`--lang en`） | 上一步加密文件 | 退出非 0 | |
+
+可复跑脚本（项目根目录）：`python tests/cli_smoke.py`，通过时打印 `CLI_SMOKE_OK`。
 
 ## 不测（本里程碑）
 
-视频、Office、加密 PDF、exe。
+视频、Office、exe。加密权限位是否被所有阅读器严格执行，只做打开/解密验证。
 
 ## 回归登记
 

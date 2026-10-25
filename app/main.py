@@ -24,6 +24,8 @@ from app.image_compressor import OUTPUT_FORMATS, compress_image
 from app.image_transform import EXPORT_FORMATS, transform_image
 from app.pdf_tools import (
     compress_pdf,
+    decrypt_pdf,
+    encrypt_pdf,
     list_compress_presets,
     merge_pdfs,
     split_pdf,
@@ -461,6 +463,86 @@ async def split_pdf_file(
     except RuntimeError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return _pdf_file_response(result)
+
+
+def _parse_allow_list(raw: str) -> list[str]:
+    items = [part.strip() for part in raw.replace("，", ",").split(",") if part.strip()]
+    return items
+
+
+@app.post("/api/pdf/encrypt")
+async def encrypt_pdf_file(
+    file: UploadFile = File(...),
+    user_password: str = Form(...),
+    owner_password: str = Form(""),
+    allow: str = Form("print,modify,copy,annotate"),
+):
+    payload = await _read_pdf_uploads([file], min_count=1)
+    try:
+        result = encrypt_pdf(
+            payload[0][0],
+            payload[0][1],
+            user_password=user_password,
+            owner_password=owner_password,
+            allow=_parse_allow_list(allow),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return _pdf_file_response(result)
+
+
+@app.post("/api/pdf/encrypt-batch")
+async def encrypt_pdf_batch(
+    files: list[UploadFile] = File(...),
+    user_password: str = Form(...),
+    owner_password: str = Form(""),
+    allow: str = Form("print,modify,copy,annotate"),
+):
+    payload = await _read_pdf_uploads(files, min_count=1)
+    allowed = _parse_allow_list(allow)
+
+    def handler(content: bytes, filename: str):
+        result = encrypt_pdf(
+            content,
+            filename,
+            user_password=user_password,
+            owner_password=owner_password,
+            allow=allowed,
+        )
+        return result.path, result.filename
+
+    return _batch_zip_response(payload, handler, "locked-pdfs.zip")
+
+
+@app.post("/api/pdf/decrypt")
+async def decrypt_pdf_file(
+    file: UploadFile = File(...),
+    password: str = Form(...),
+):
+    payload = await _read_pdf_uploads([file], min_count=1)
+    try:
+        result = decrypt_pdf(payload[0][0], payload[0][1], password)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    return _pdf_file_response(result)
+
+
+@app.post("/api/pdf/decrypt-batch")
+async def decrypt_pdf_batch(
+    files: list[UploadFile] = File(...),
+    password: str = Form(...),
+):
+    payload = await _read_pdf_uploads(files, min_count=1)
+
+    def handler(content: bytes, filename: str):
+        result = decrypt_pdf(content, filename, password)
+        return result.path, result.filename
+
+    return _batch_zip_response(payload, handler, "unlocked-pdfs.zip")
 
 
 @app.post("/api/csv/to-excel")
