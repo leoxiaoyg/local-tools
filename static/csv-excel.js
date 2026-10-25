@@ -3,6 +3,8 @@ let excelFile = null;
 
 const statusBox = document.getElementById("statusBox");
 const statusText = document.getElementById("statusText");
+const csvTitle = document.getElementById("dropCsv").querySelector(".dropzone-title");
+const excelTitle = document.getElementById("dropExcel").querySelector(".dropzone-title");
 
 function showStatus(msg, isError = false) {
   statusBox.classList.remove("hidden");
@@ -13,7 +15,7 @@ function showStatus(msg, isError = false) {
 async function downloadFromResponse(res, fallbackName) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.detail || "转换失败");
+    throw new Error(err.detail || t("csv.fail"));
   }
   const blob = await res.blob();
   const disposition = res.headers.get("Content-Disposition") || "";
@@ -41,13 +43,13 @@ function bindDropzone(zone, input, onFile) {
 bindDropzone(document.getElementById("dropCsv"), document.getElementById("csvInput"), (f) => {
   csvFile = f;
   document.getElementById("btnCsvToExcel").disabled = false;
-  document.getElementById("dropCsv").querySelector(".dropzone-title").textContent = f.name;
+  csvTitle.textContent = f.name;
 });
 
 bindDropzone(document.getElementById("dropExcel"), document.getElementById("excelInput"), (f) => {
   excelFile = f;
   document.getElementById("btnExcelToCsv").disabled = false;
-  document.getElementById("dropExcel").querySelector(".dropzone-title").textContent = f.name;
+  excelTitle.textContent = f.name;
 });
 
 document.getElementById("btnCsvToExcel").addEventListener("click", async () => {
@@ -55,9 +57,9 @@ document.getElementById("btnCsvToExcel").addEventListener("click", async () => {
   const formData = new FormData();
   formData.append("file", csvFile);
   try {
-    showStatus("转换中…");
+    showStatus(t("csv.working"));
     await downloadFromResponse(await fetch("/api/csv/to-excel", { method: "POST", body: formData }), "output.xlsx");
-    showStatus("Excel 已下载");
+    showStatus(t("csv.excelDone"));
     statusBox.classList.remove("error");
   } catch (e) {
     showStatus(e.message, true);
@@ -70,11 +72,16 @@ document.getElementById("btnExcelToCsv").addEventListener("click", async () => {
   formData.append("file", excelFile);
   formData.append("sheet", document.getElementById("sheetName").value.trim() || "0");
   try {
-    showStatus("转换中…");
+    showStatus(t("csv.working"));
     await downloadFromResponse(await fetch("/api/excel/to-csv", { method: "POST", body: formData }), "output.csv");
-    showStatus("CSV 已下载");
+    showStatus(t("csv.csvDone"));
     statusBox.classList.remove("error");
   } catch (e) {
     showStatus(e.message, true);
   }
+});
+
+document.addEventListener("lt-i18n", () => {
+  if (csvFile) csvTitle.textContent = csvFile.name;
+  if (excelFile) excelTitle.textContent = excelFile.name;
 });

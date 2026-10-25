@@ -3,58 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Base64 编解码</title>
+  <title data-i18n="b64.title">Base64 编解码</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page page-wide">
-    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
     <header class="header">
       <div class="logo tool-icon-data" aria-hidden="true">
         <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="8" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 16h12M16 12v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </div>
       <div>
-        <h1>Base64 编解码</h1>
-        <p class="subtitle">文本编解码在浏览器本地完成；文件通过本地服务处理</p>
+        <h1 data-i18n="b64.title">Base64 编解码</h1>
+        <p class="subtitle" data-i18n="b64.sub">文本编解码在浏览器本地完成；文件通过本地服务处理</p>
       </div>
     </header>
     <main class="card">
       <div class="tabs">
-        <button type="button" class="tab active" data-tab="text">文本</button>
-        <button type="button" class="tab" data-tab="file">文件</button>
+        <button type="button" class="tab active" data-tab="text" data-i18n="b64.tabText">文本</button>
+        <button type="button" class="tab" data-tab="file" data-i18n="b64.tabFile">文件</button>
       </div>
 
       <div id="panelText" class="tab-panel">
         <div class="toolbar">
-          <button type="button" class="btn-ghost" id="btnEncodeText">编码</button>
-          <button type="button" class="btn-ghost" id="btnDecodeText">解码</button>
-          <button type="button" class="btn-ghost" id="btnCopyText">复制</button>
-          <label class="check-label"><input type="checkbox" id="urlSafe" /> URL 安全</label>
+          <button type="button" class="btn-ghost" id="btnEncodeText" data-i18n="b64.encode">编码</button>
+          <button type="button" class="btn-ghost" id="btnDecodeText" data-i18n="b64.decode">解码</button>
+          <button type="button" class="btn-ghost" id="btnCopyText" data-i18n="b64.copy">复制</button>
+          <label class="check-label"><input type="checkbox" id="urlSafe" /><span data-i18n="b64.urlSafe"> URL 安全</span></label>
         </div>
         <div class="editor-split">
-          <label class="field"><span class="field-label">输入</span><textarea id="textInput" class="textarea" placeholder="输入文本或 Base64"></textarea></label>
-          <label class="field"><span class="field-label">输出</span><textarea id="textOutput" class="textarea" readonly></textarea></label>
+          <label class="field"><span class="field-label" data-i18n="b64.input">输入</span><textarea id="textInput" class="textarea" data-i18n-placeholder="b64.inputPh" placeholder="输入文本或 Base64"></textarea></label>
+          <label class="field"><span class="field-label" data-i18n="b64.output">输出</span><textarea id="textOutput" class="textarea" readonly></textarea></label>
         </div>
       </div>
 
       <div id="panelFile" class="tab-panel hidden">
         <div class="toolbar">
-          <label class="btn-ghost file-label">选择文件<input type="file" id="fileInput" hidden /></label>
-          <span class="file-hint" id="fileHint">未选择文件</span>
+          <label class="btn-ghost file-label"><span data-i18n="b64.pickFile">选择文件</span><input type="file" id="fileInput" hidden /></label>
+          <span class="file-hint" id="fileHint" data-i18n="b64.noFile">未选择文件</span>
         </div>
-        <label class="field"><span class="field-label">Base64 结果</span><textarea id="fileOutput" class="textarea textarea-short" readonly placeholder="编码结果"></textarea></label>
+        <label class="field"><span class="field-label" data-i18n="b64.result">Base64 结果</span><textarea id="fileOutput" class="textarea textarea-short" readonly data-i18n-placeholder="b64.resultPh" placeholder="编码结果"></textarea></label>
         <div class="field-row">
-          <label class="field flex-1"><span class="field-label">Base64 输入（解码为文件）</span><textarea id="decodeInput" class="textarea textarea-short" placeholder="粘贴 Base64"></textarea></label>
-          <label class="field"><span class="field-label">文件名</span><input type="text" id="decodeFilename" class="input" value="decoded.bin" /></label>
+          <label class="field flex-1"><span class="field-label" data-i18n="b64.decodeInput">Base64 输入（解码为文件）</span><textarea id="decodeInput" class="textarea textarea-short" data-i18n-placeholder="b64.decodePh" placeholder="粘贴 Base64"></textarea></label>
+          <label class="field"><span class="field-label" data-i18n="b64.filename">文件名</span><input type="text" id="decodeFilename" class="input" value="decoded.bin" /></label>
         </div>
-        <button type="button" class="btn-primary" id="btnDecodeFile">解码并下载</button>
+        <button type="button" class="btn-primary" id="btnDecodeFile" data-i18n="b64.decodeDownload">解码并下载</button>
       </div>
 
       <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
     </main>
-    <footer class="footer"><span>文本本地处理 · 文件经本地服务转换</span></footer>
+    <footer class="footer"><span data-i18n="b64.footer">文本本地处理 · 文件经本地服务转换</span></footer>
   </div>
-  <script src="/base64.js"></script>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/base64.js?v=20261025i18n"></script>
 </body>
 </html>

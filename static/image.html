@@ -3,13 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>图片压缩</title>
+  <title data-i18n="image.title">图片压缩</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page">
-    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
 
     <header class="header">
       <div class="logo logo-image" aria-hidden="true">
@@ -20,22 +26,22 @@
         </svg>
       </div>
       <div>
-        <h1>图片压缩</h1>
-        <p class="subtitle">在尽量保持画质的前提下缩小体积，也可指定文件大小上限</p>
+        <h1 data-i18n="image.title">图片压缩</h1>
+        <p class="subtitle" data-i18n="image.sub">在尽量保持画质的前提下缩小体积，也可指定文件大小上限</p>
       </div>
     </header>
 
     <main class="card">
-      <section class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="选择或拖放图片文件">
-        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/tiff,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" hidden />
+      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/bmp,image/tiff,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" multiple hidden />
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" data-i18n-aria="image.dropAria" aria-label="选择或拖放图片文件">
         <div class="dropzone-icon" aria-hidden="true">
           <svg viewBox="0 0 48 48" fill="none">
             <path d="M24 32V16M24 16l-6 6M24 16l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M8 32v4a4 4 0 004 4h24a4 4 0 004-4v-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
-        <p class="dropzone-title">拖放图片到此处，或点击选择文件</p>
-        <p class="dropzone-hint">支持 JPG、PNG、WebP、BMP、TIFF · 最大 50MB</p>
+        <p class="dropzone-title" data-i18n="image.drop">拖放图片到此处，或点击选择（可多选）</p>
+        <p class="dropzone-hint" data-i18n="image.dropHint">支持 JPG、PNG、WebP、BMP、TIFF · 单文件 50MB · 批量合计 200MB / 50 张 · 可分多次添加</p>
       </section>
 
       <div class="file-preview hidden" id="filePreview">
@@ -44,34 +50,35 @@
           <span class="file-name" id="fileName"></span>
           <span class="file-size" id="fileSize"></span>
         </div>
-        <button type="button" class="btn-ghost" id="clearBtn" aria-label="清除文件">清除</button>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear" data-i18n-aria="common.clear">清除</button>
       </div>
 
+      <ul class="file-queue hidden" id="fileQueue"></ul>
       <div class="preview-row hidden" id="previewRow">
-        <img id="imagePreview" alt="图片预览" class="image-preview" />
+        <img id="imagePreview" alt="" class="image-preview" data-i18n-aria="common.preview" />
       </div>
 
       <div class="controls">
         <label class="field">
-          <span class="field-label">压缩模式</span>
+          <span class="field-label" data-i18n="image.mode">压缩模式</span>
           <select id="modeSelect" class="select">
-            <option value="smart">智能压缩（优先保持画质）</option>
-            <option value="target">指定体积上限</option>
+            <option value="smart" data-i18n="image.mode.smart">智能压缩（优先保持画质）</option>
+            <option value="target" data-i18n="image.mode.target">指定体积上限</option>
           </select>
         </label>
 
         <label class="field hidden" id="targetField">
-          <span class="field-label">目标体积上限（KB）</span>
-          <input type="number" id="targetKb" class="input" min="1" placeholder="例如 200" />
+          <span class="field-label" data-i18n="image.target">目标体积上限（KB）</span>
+          <input type="number" id="targetKb" class="input" min="1" data-i18n-placeholder="image.targetPh" placeholder="例如 200" />
         </label>
 
         <label class="field">
-          <span class="field-label">输出格式</span>
+          <span class="field-label" data-i18n="image.format">输出格式</span>
           <select id="formatSelect" class="select"></select>
         </label>
 
         <button type="button" class="btn-primary btn-primary-image" id="compressBtn" disabled>
-          <span class="btn-text">开始压缩</span>
+          <span class="btn-text" data-i18n="image.start">开始压缩</span>
           <span class="btn-spinner hidden" aria-hidden="true"></span>
         </button>
       </div>
@@ -83,20 +90,23 @@
       <div class="result hidden" id="resultBox">
         <div class="result-icon" aria-hidden="true">✓</div>
         <div class="result-body">
-          <p class="result-title">压缩完成</p>
+          <p class="result-title" data-i18n="image.done">压缩完成</p>
           <p class="result-name" id="resultName"></p>
           <div class="size-stats" id="sizeStats"></div>
           <p class="result-note" id="resultNote"></p>
+          <ul class="result-errors hidden" id="resultErrors"></ul>
         </div>
         <a class="btn-download" id="downloadLink" download>下载图片</a>
       </div>
     </main>
 
     <footer class="footer">
-      <span>本地处理 · 文件不会上传到第三方</span>
+      <span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span>
     </footer>
   </div>
 
-  <script src="/image.js"></script>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/image.js?v=20261025i18n"></script>
 </body>
 </html>

@@ -3,74 +3,121 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>本地工具集</title>
+  <title data-i18n="hub.title">本地工具集</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page page-hub">
-    <header class="header header-center">
-      <h1>本地工具集</h1>
-      <p class="subtitle">在本地完成处理，文件不会上传到第三方</p>
+    <div class="hub-top">
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <header class="hub-header">
+      <p class="hub-kicker" data-i18n="hub.kicker">本地优先</p>
+      <h1 data-i18n="hub.title">本地工具集</h1>
+      <p class="subtitle" data-i18n="hub.sub">商品图与 PDF 在本机处理，文件不会上传。</p>
     </header>
 
-    <div class="tool-grid">
-      <a class="tool-card" href="/video.html">
-        <div class="tool-icon tool-icon-video" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M22 14l6-3.5v11L22 18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h2>视频转音频</h2>
-        <p>从视频中提取 MP3、WAV、AAC 等音频</p>
-      </a>
+    <section class="tool-group" aria-labelledby="group-image">
+      <h2 class="tool-group-title" id="group-image" data-i18n="hub.group.image">图片</h2>
+      <div class="tool-grid">
+        <a class="tool-card" href="/image.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 22l7-6 5 4 6-7 6 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.image.compress">图片压缩</h2>
+          <p data-i18n="hub.image.compressDesc">保持画质缩小体积，支持批量 zip</p>
+        </a>
+        <a class="tool-card" href="/image-convert.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 21l4-5 3 3 5-7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.image.convert">图片转换</h2>
+          <p data-i18n="hub.image.convertDesc">格式转换、调整尺寸，支持批量 zip</p>
+        </a>
+        <a class="tool-card" href="/exif.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 22l7-6 5 4 6-7 6 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M22 8h4M24 6v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.image.exif">EXIF 清除</h2>
+          <p data-i18n="hub.image.exifDesc">去掉照片里的位置与设备信息</p>
+        </a>
+      </div>
+    </section>
 
-      <a class="tool-card" href="/video-compress.html">
-        <div class="tool-icon tool-icon-video" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="9" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M21 14l5-3v10l-5-3" stroke="currentColor" stroke-width="1.5"/><path d="M9 18h6M9 14h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </div>
-        <h2>视频压缩</h2>
-        <p>降低分辨率与码率，缩小视频体积</p>
-      </a>
+    <section class="tool-group" aria-labelledby="group-doc">
+      <h2 class="tool-group-title" id="group-doc" data-i18n="hub.group.doc">文档</h2>
+      <div class="tool-grid">
+        <a class="tool-card" href="/pdf.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M9 5h10l6 6v16a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M19 5v6h6M12 17h8M12 21h8M12 25h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.doc.pdf">PDF 工具</h2>
+          <p data-i18n="hub.doc.pdfDesc">合并、压缩、拆分，文件不出本机</p>
+        </a>
+        <a class="tool-card" href="/doc-convert.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M9 5h10l6 6v16a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M19 5v6h6M11 16h10M11 20h10M11 24h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.doc.convert">文档转换</h2>
+          <p data-i18n="hub.doc.convertDesc">图片 / PDF / OFD / Word / PPT 互转</p>
+        </a>
+      </div>
+    </section>
 
-      <a class="tool-card" href="/image.html">
-        <div class="tool-icon tool-icon-image" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="6" width="24" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><circle cx="11" cy="13" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 22l7-6 5 4 6-7 6 9" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h2>图片压缩</h2>
-        <p>在尽量保持画质的前提下缩小体积</p>
-      </a>
+    <section class="tool-group" aria-labelledby="group-video">
+      <h2 class="tool-group-title" id="group-video" data-i18n="hub.group.video">视频</h2>
+      <div class="tool-grid">
+        <a class="tool-card" href="/video.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M22 14l6-3.5v11L22 18" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.video.audio">视频转音频</h2>
+          <p data-i18n="hub.video.audioDesc">从视频中提取 MP3、WAV、AAC 等音频</p>
+        </a>
+        <a class="tool-card" href="/video-compress.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="9" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M21 14l5-3v10l-5-3" stroke="currentColor" stroke-width="1.5"/><path d="M9 18h6M9 14h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.video.compress">视频压缩</h2>
+          <p data-i18n="hub.video.compressDesc">降低分辨率与码率，缩小视频体积</p>
+        </a>
+      </div>
+    </section>
 
-      <a class="tool-card" href="/image-convert.html">
-        <div class="tool-icon tool-icon-image" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 21l4-5 3 3 5-7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        </div>
-        <h2>图片转换</h2>
-        <p>格式转换、调整尺寸与裁剪</p>
-      </a>
+    <section class="tool-group" aria-labelledby="group-text">
+      <h2 class="tool-group-title" id="group-text" data-i18n="hub.group.text">文本与表格</h2>
+      <div class="tool-grid">
+        <a class="tool-card" href="/json.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><path d="M8 10h4a3 3 0 010 6H8M8 10v12M24 10h-4a3 3 0 000 6h4M24 10v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.text.json">JSON 格式化</h2>
+          <p data-i18n="hub.text.jsonDesc">格式化、压缩与校验 JSON 文本</p>
+        </a>
+        <a class="tool-card" href="/base64.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="8" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 16h12M16 12v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <h2 data-i18n="hub.text.b64">Base64 编解码</h2>
+          <p data-i18n="hub.text.b64Desc">文本与文件的 Base64 互转</p>
+        </a>
+        <a class="tool-card" href="/csv-excel.html">
+          <div class="tool-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 12h20M6 18h20M14 6v20" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+          <h2 data-i18n="hub.text.csv">CSV ↔ Excel</h2>
+          <p data-i18n="hub.text.csvDesc">CSV 与 Excel 表格互转</p>
+        </a>
+      </div>
+    </section>
 
-      <a class="tool-card" href="/json.html">
-        <div class="tool-icon tool-icon-data" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><path d="M8 10h4a3 3 0 010 6H8M8 10v12M24 10h-4a3 3 0 000 6h4M24 10v12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </div>
-        <h2>JSON 格式化</h2>
-        <p>格式化、压缩与校验 JSON 文本</p>
-      </a>
-
-      <a class="tool-card" href="/base64.html">
-        <div class="tool-icon tool-icon-data" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="8" width="20" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M10 16h12M16 12v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </div>
-        <h2>Base64 编解码</h2>
-        <p>文本与文件的 Base64 互转</p>
-      </a>
-
-      <a class="tool-card" href="/csv-excel.html">
-        <div class="tool-icon tool-icon-data" aria-hidden="true">
-          <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 12h20M6 18h20M14 6v20" stroke="currentColor" stroke-width="1.5"/></svg>
-        </div>
-        <h2>CSV ↔ Excel</h2>
-        <p>CSV 与 Excel 表格互转</p>
-      </a>
-    </div>
+    <footer class="footer" data-i18n="hub.footer">本地处理，文件不会上传到第三方</footer>
   </div>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
 </body>
 </html>

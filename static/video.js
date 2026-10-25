@@ -18,6 +18,7 @@ const btnSpinner = convertBtn.querySelector(".btn-spinner");
 
 let selectedFile = null;
 let downloadUrl = null;
+let busy = false;
 
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -71,6 +72,7 @@ function showResult(name, blob) {
 }
 
 async function loadFormats() {
+  const current = formatSelect.value;
   try {
     const res = await fetch("/api/formats");
     const formats = await res.json();
@@ -86,6 +88,9 @@ async function loadFormats() {
       <option value="ogg">OGG (.ogg)</option>
       <option value="flac">FLAC (.flac)</option>
     `;
+  }
+  if ([...formatSelect.options].some((opt) => opt.value === current)) {
+    formatSelect.value = current;
   }
 }
 
@@ -107,10 +112,11 @@ async function convert() {
   if (!selectedFile) return;
 
   hideResult();
+  busy = true;
   convertBtn.disabled = true;
-  btnText.textContent = "正在提取…";
+  btnText.textContent = t("video.working");
   btnSpinner.classList.remove("hidden");
-  showStatus("正在从视频中提取音频，请稍候…");
+  showStatus(t("video.status"));
   const stopProgress = simulateProgress();
 
   const formData = new FormData();
@@ -121,7 +127,7 @@ async function convert() {
     const res = await fetch("/api/convert", { method: "POST", body: formData });
 
     if (!res.ok) {
-      let detail = "转换失败，请重试";
+      let detail = t("video.fail");
       try {
         const data = await res.json();
         detail = data.detail || detail;
@@ -143,10 +149,11 @@ async function convert() {
     showResult(outName, blob);
   } catch (err) {
     stopProgress();
-    showStatus(err.message || "转换失败", true);
+    showStatus(err.message || t("common.fail"), true);
   } finally {
+    busy = false;
     convertBtn.disabled = !selectedFile;
-    btnText.textContent = "开始提取";
+    btnText.textContent = t("video.start");
     btnSpinner.classList.add("hidden");
   }
 }
@@ -186,5 +193,9 @@ clearBtn.addEventListener("click", () => {
 });
 
 convertBtn.addEventListener("click", convert);
+document.addEventListener("lt-i18n", () => {
+  if (!busy) btnText.textContent = t("video.start");
+  loadFormats();
+});
 
 loadFormats();

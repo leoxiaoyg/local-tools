@@ -1,5 +1,7 @@
 let selectedFile = null;
 let downloadUrl = null;
+let busy = false;
+let lastSizes = null;
 
 const dropzone = document.getElementById("dropzone");
 const fileInput = document.getElementById("fileInput");
@@ -29,6 +31,7 @@ function formatBytes(bytes) {
 
 function setFile(file) {
   selectedFile = file;
+  lastSizes = null;
   if (file) {
     fileName.textContent = file.name;
     fileSize.textContent = formatBytes(file.size);
@@ -43,22 +46,34 @@ function setFile(file) {
   if (downloadUrl) { URL.revokeObjectURL(downloadUrl); downloadUrl = null; }
 }
 
+function paintSizes() {
+  if (!lastSizes) return;
+  const pct = (((lastSizes.orig - lastSizes.comp) / lastSizes.orig) * 100).toFixed(1);
+  sizeStats.innerHTML = `<span><strong>${formatBytes(lastSizes.orig)}</strong> → <strong>${formatBytes(lastSizes.comp)}</strong></span><span class="size-reduction">${t("vcomp.reduced", { n: pct })}</span>`;
+}
+
 crfRange.addEventListener("input", () => { crfValue.textContent = crfRange.value; });
 
 async function loadOptions() {
+  const format = formatSelect.value;
+  const resolution = resolutionSelect.value;
   const res = await fetch("/api/video/compress-options");
   const data = await res.json();
   formatSelect.innerHTML = data.formats.map((f) => `<option value="${f.id}">${f.label}</option>`).join("");
   resolutionSelect.innerHTML = data.resolutions.map((r) => `<option value="${r.id}">${r.label}</option>`).join("");
+  if ([...formatSelect.options].some((opt) => opt.value === format)) formatSelect.value = format;
+  if ([...resolutionSelect.options].some((opt) => opt.value === resolution)) resolutionSelect.value = resolution;
 }
 
 async function submit() {
   if (!selectedFile) return;
+  busy = true;
+  lastSizes = null;
   submitBtn.disabled = true;
-  btnText.textContent = "正在压缩…";
+  btnText.textContent = t("vcomp.working");
   btnSpinner.classList.remove("hidden");
   statusBox.classList.remove("hidden");
-  statusText.textContent = "视频压缩中，请耐心等待…";
+  statusText.textContent = t("vcomp.status");
 
   const formData = new FormData();
   formData.append("file", selectedFile);
@@ -70,7 +85,7 @@ async function submit() {
     const res = await fetch("/api/video/compress", { method: "POST", body: formData });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.detail || "压缩失败");
+      throw new Error(err.detail || t("vcomp.fail"));
     }
     const blob = await res.blob();
     const disposition = res.headers.get("Content-Disposition") || "";
@@ -83,8 +98,8 @@ async function submit() {
     downloadLink.download = outName;
     resultName.textContent = outName;
     if (orig && comp) {
-      const pct = (((orig - comp) / orig) * 100).toFixed(1);
-      sizeStats.innerHTML = `<span><strong>${formatBytes(+orig)}</strong> → <strong>${formatBytes(+comp)}</strong></span><span class="size-reduction">减小 ${pct}%</span>`;
+      lastSizes = { orig: +orig, comp: +comp };
+      paintSizes();
     }
     statusBox.classList.add("hidden");
     resultBox.classList.remove("hidden");
@@ -93,8 +108,9 @@ async function submit() {
     statusBox.classList.add("error");
     statusText.textContent = e.message;
   } finally {
+    busy = false;
     submitBtn.disabled = !selectedFile;
-    btnText.textContent = "开始压缩";
+    btnText.textContent = t("vcomp.start");
     btnSpinner.classList.add("hidden");
   }
 }
@@ -106,4 +122,9 @@ dropzone.addEventListener("drop", (e) => { e.preventDefault(); dropzone.classLis
 fileInput.addEventListener("change", () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
 clearBtn.addEventListener("click", () => { fileInput.value = ""; setFile(null); });
 submitBtn.addEventListener("click", submit);
+document.addEventListener("lt-i18n", () => {
+  if (!busy) btnText.textContent = t("vcomp.start");
+  if (!resultBox.classList.contains("hidden")) paintSizes();
+  loadOptions();
+});
 loadOptions();

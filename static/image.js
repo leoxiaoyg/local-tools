@@ -4,8 +4,10 @@ const filePreview = document.getElementById("filePreview");
 const fileName = document.getElementById("fileName");
 const fileSize = document.getElementById("fileSize");
 const clearBtn = document.getElementById("clearBtn");
+const fileQueue = document.getElementById("fileQueue");
 const previewRow = document.getElementById("previewRow");
 const imagePreview = document.getElementById("imagePreview");
+const resultErrors = document.getElementById("resultErrors");
 const modeSelect = document.getElementById("modeSelect");
 const targetField = document.getElementById("targetField");
 const targetKb = document.getElementById("targetKb");
@@ -21,9 +23,11 @@ const downloadLink = document.getElementById("downloadLink");
 const btnText = compressBtn.querySelector(".btn-text");
 const btnSpinner = compressBtn.querySelector(".btn-spinner");
 
-let selectedFile = null;
+let selectedFiles = [];
 let downloadUrl = null;
 let previewUrl = null;
+let busy = false;
+let lastResult = null;
 
 function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} B`;
@@ -36,29 +40,106 @@ function calcReduction(original, compressed) {
   return (((original - compressed) / original) * 100).toFixed(1);
 }
 
-function setFile(file) {
-  selectedFile = file;
+function fileKey(file) {
+  return `${file.name}:${file.size}:${file.lastModified}`;
+}
+
+function filesCaption(files) {
+  if (files.length === 1) return files[0].name;
+  return t("common.andMoreImages", { name: files[0].name, n: files.length });
+}
+
+function startLabel() {
+  return selectedFiles.length > 1
+    ? t("image.batchStart", { n: selectedFiles.length })
+    : t("image.start");
+}
+
+function addFiles(incoming) {
+  const merged = new Map(selectedFiles.map((file) => [fileKey(file), file]));
+  for (const file of incoming) {
+    merged.set(fileKey(file), file);
+  }
+  setFiles([...merged.values()].slice(0, 50));
+}
+
+function setFiles(files) {
+  selectedFiles = files;
+  lastResult = null;
   if (previewUrl) {
     URL.revokeObjectURL(previewUrl);
     previewUrl = null;
   }
 
-  if (file) {
-    fileName.textContent = file.name;
-    fileSize.textContent = formatBytes(file.size);
+  if (files.length) {
+    const total = files.reduce((sum, file) => sum + file.size, 0);
+    fileName.textContent = filesCaption(files);
+    fileSize.textContent = formatBytes(total);
     filePreview.classList.remove("hidden");
-    previewUrl = URL.createObjectURL(file);
-    imagePreview.src = previewUrl;
-    previewRow.classList.remove("hidden");
     compressBtn.disabled = false;
+    btnText.textContent = startLabel();
+
+    fileQueue.innerHTML = files
+      .map((file) => `<li><span class="queue-name">${escapeHtml(file.name)}</span><span class="queue-size">${formatBytes(file.size)}</span></li>`)
+      .join("");
+    fileQueue.classList.toggle("hidden", !files.length);
+
+    if (files.length === 1) {
+      previewUrl = URL.createObjectURL(files[0]);
+      imagePreview.src = previewUrl;
+      previewRow.classList.remove("hidden");
+    } else {
+      previewRow.classList.add("hidden");
+      imagePreview.removeAttribute("src");
+    }
   } else {
     filePreview.classList.add("hidden");
+    fileQueue.classList.add("hidden");
+    fileQueue.innerHTML = "";
     previewRow.classList.add("hidden");
     imagePreview.removeAttribute("src");
     compressBtn.disabled = true;
+    btnText.textContent = t("image.start");
   }
   hideResult();
   hideStatus();
+}
+
+function escapeHtml(text) {
+  return text.replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[ch]));
+}
+
+function parseFilename(disposition, fallback) {
+  const match = disposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
+  return match ? decodeURIComponent(match[1].replace(/"/g, "")) : fallback;
+}
+
+function parseBatchErrors(header) {
+  if (!header) return [];
+  try {
+    const parsed = JSON.parse(decodeURIComponent(header));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderBatchErrors(items) {
+  if (!items.length) {
+    resultErrors.classList.add("hidden");
+    resultErrors.innerHTML = "";
+    return;
+  }
+  resultErrors.innerHTML = items
+    .map((item) => `<li>${escapeHtml(item.name)}：${escapeHtml(item.detail || t("common.failed"))}</li>`)
+    .join("");
+  resultErrors.classList.remove("hidden");
 }
 
 function hideStatus() {
@@ -74,30 +155,47 @@ function showStatus(message, isError = false) {
 
 function hideResult() {
   resultBox.classList.add("hidden");
+  renderBatchErrors([]);
   if (downloadUrl) {
     URL.revokeObjectURL(downloadUrl);
     downloadUrl = null;
   }
 }
 
-function showResult(name, blob, meta) {
-  hideResult();
-  downloadUrl = URL.createObjectURL(blob);
-  resultName.textContent = name;
+function paintResult() {
+  if (!lastResult || !downloadUrl) return;
   downloadLink.href = downloadUrl;
-  downloadLink.download = name;
-
-  const original = Number(meta.originalSize);
-  const compressed = Number(meta.compressedSize);
-  sizeStats.innerHTML = `
-    <span><strong>${formatBytes(original)}</strong> → <strong>${formatBytes(compressed)}</strong></span>
-    <span class="size-reduction">减小 ${calcReduction(original, compressed)}%</span>
-  `;
-  resultNote.textContent = meta.message || "";
+  downloadLink.download = lastResult.name;
+  resultName.textContent = lastResult.name;
+  if (lastResult.batch) {
+    downloadLink.textContent = t("common.downloadZip");
+    sizeStats.innerHTML = `<span>${t("common.batchResult", { ok: lastResult.ok, fail: lastResult.fail })}</span>`;
+    resultNote.textContent = lastResult.fail ? t("image.errorsInZip") : t("image.allOk");
+    renderBatchErrors(lastResult.errors);
+  } else {
+    downloadLink.textContent = t("common.downloadImage");
+    sizeStats.innerHTML = `
+      <span><strong>${formatBytes(lastResult.original)}</strong> → <strong>${formatBytes(lastResult.compressed)}</strong></span>
+      <span class="size-reduction">${t("image.reduced", { n: calcReduction(lastResult.original, lastResult.compressed) })}</span>
+    `;
+    resultNote.textContent = lastResult.message || "";
+    renderBatchErrors([]);
+  }
   resultBox.classList.remove("hidden");
 }
 
+function refreshI18n() {
+  if (selectedFiles.length) fileName.textContent = filesCaption(selectedFiles);
+  if (busy) {
+    btnText.textContent = selectedFiles.length > 1 ? t("image.batchWorking") : t("image.working");
+  } else {
+    btnText.textContent = startLabel();
+  }
+  if (!resultBox.classList.contains("hidden")) paintResult();
+}
+
 async function loadFormats() {
+  const current = formatSelect.value;
   try {
     const res = await fetch("/api/image/formats");
     const formats = await res.json();
@@ -106,11 +204,14 @@ async function loadFormats() {
       .join("");
   } catch {
     formatSelect.innerHTML = `
-      <option value="auto">保持原格式</option>
+      <option value="auto">${t("common.keepFormat")}</option>
       <option value="jpeg">JPEG</option>
       <option value="png">PNG</option>
       <option value="webp">WebP</option>
     `;
+  }
+  if ([...formatSelect.options].some((opt) => opt.value === current)) {
+    formatSelect.value = current;
   }
 }
 
@@ -119,59 +220,82 @@ modeSelect.addEventListener("change", () => {
 });
 
 async function compress() {
-  if (!selectedFile) return;
+  if (!selectedFiles.length) return;
 
+  lastResult = null;
   hideResult();
+  busy = true;
   compressBtn.disabled = true;
-  btnText.textContent = "正在压缩…";
+  const batch = selectedFiles.length > 1;
+  btnText.textContent = batch ? t("image.batchWorking") : t("image.working");
   btnSpinner.classList.remove("hidden");
-  showStatus("正在优化图片，请稍候…");
+  showStatus(batch ? t("image.statusMany", { n: selectedFiles.length }) : t("image.statusOne"));
 
   const formData = new FormData();
-  formData.append("file", selectedFile);
   formData.append("mode", modeSelect.value);
   formData.append("output_format", formatSelect.value);
   if (modeSelect.value === "target") {
     formData.append("target_kb", targetKb.value.trim());
   }
+  if (batch) {
+    selectedFiles.forEach((file) => formData.append("files", file));
+  } else {
+    formData.append("file", selectedFiles[0]);
+  }
 
   try {
-    const res = await fetch("/api/image/compress", { method: "POST", body: formData });
+    const res = await fetch(batch ? "/api/image/compress-batch" : "/api/image/compress", {
+      method: "POST",
+      body: formData,
+    });
 
     if (!res.ok) {
-      let detail = "压缩失败，请重试";
+      let detail = t("image.failRetry");
       try {
         const data = await res.json();
         detail = data.detail || detail;
       } catch {
         /* ignore */
       }
-      throw new Error(typeof detail === "string" ? detail : "压缩失败，请重试");
+      throw new Error(typeof detail === "string" ? detail : t("image.failRetry"));
     }
-
-    const disposition = res.headers.get("Content-Disposition") || "";
-    const match = disposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
-    const outName = match
-      ? decodeURIComponent(match[1].replace(/"/g, ""))
-      : "compressed.jpg";
 
     const blob = await res.blob();
     hideStatus();
-    showResult(outName, blob, {
-      originalSize: res.headers.get("X-Original-Size"),
-      compressedSize: res.headers.get("X-Compressed-Size"),
-      message: decodeURIComponent(res.headers.get("X-Compress-Message") || ""),
-    });
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl);
+    downloadUrl = URL.createObjectURL(blob);
+    if (batch) {
+      lastResult = {
+        batch: true,
+        name: parseFilename(res.headers.get("Content-Disposition") || "", "compressed-images.zip"),
+        ok: Number(res.headers.get("X-Batch-Ok") || 0),
+        fail: Number(res.headers.get("X-Batch-Failed") || 0),
+        errors: parseBatchErrors(res.headers.get("X-Batch-Errors")),
+      };
+    } else {
+      lastResult = {
+        batch: false,
+        name: parseFilename(res.headers.get("Content-Disposition") || "", "compressed.jpg"),
+        original: Number(res.headers.get("X-Original-Size")),
+        compressed: Number(res.headers.get("X-Compressed-Size")),
+        message: decodeURIComponent(res.headers.get("X-Compress-Message") || ""),
+      };
+    }
+    paintResult();
   } catch (err) {
-    showStatus(err.message || "压缩失败", true);
+    showStatus(err.message || t("common.fail"), true);
   } finally {
-    compressBtn.disabled = !selectedFile;
-    btnText.textContent = "开始压缩";
+    busy = false;
+    compressBtn.disabled = !selectedFiles.length;
+    btnText.textContent = startLabel();
     btnSpinner.classList.add("hidden");
   }
 }
 
-dropzone.addEventListener("click", () => fileInput.click());
+dropzone.addEventListener("click", (e) => {
+  e.preventDefault();
+  fileInput.click();
+});
 dropzone.addEventListener("keydown", (e) => {
   if (e.key === "Enter" || e.key === " ") {
     e.preventDefault();
@@ -191,20 +315,25 @@ dropzone.addEventListener("dragleave", () => {
 dropzone.addEventListener("drop", (e) => {
   e.preventDefault();
   dropzone.classList.remove("dragover");
-  const file = e.dataTransfer.files[0];
-  if (file) setFile(file);
+  const files = Array.from(e.dataTransfer.files);
+  if (files.length) addFiles(files);
 });
 
+fileInput.addEventListener("click", (e) => e.stopPropagation());
 fileInput.addEventListener("change", () => {
-  const file = fileInput.files[0];
-  if (file) setFile(file);
+  if (fileInput.files.length) addFiles(Array.from(fileInput.files));
+  fileInput.value = "";
 });
 
 clearBtn.addEventListener("click", () => {
   fileInput.value = "";
-  setFile(null);
+  setFiles([]);
 });
 
 compressBtn.addEventListener("click", compress);
+document.addEventListener("lt-i18n", () => {
+  refreshI18n();
+  loadFormats();
+});
 
 loadFormats();

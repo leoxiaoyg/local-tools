@@ -3,55 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>视频压缩</title>
+  <title data-i18n="vcomp.title">视频压缩</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page">
-    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
     <header class="header">
       <div class="logo" aria-hidden="true">
         <svg viewBox="0 0 32 32" fill="none"><rect x="5" y="9" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M21 14l5-3v10l-5-3" stroke="currentColor" stroke-width="1.5"/></svg>
       </div>
       <div>
-        <h1>视频压缩</h1>
-        <p class="subtitle">调整分辨率与画质参数，缩小视频文件体积</p>
+        <h1 data-i18n="vcomp.title">视频压缩</h1>
+        <p class="subtitle" data-i18n="vcomp.sub">调整分辨率与画质参数，缩小视频文件体积</p>
       </div>
     </header>
     <main class="card">
-      <section class="dropzone" id="dropzone" tabindex="0" role="button">
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" data-i18n-aria="video.dropAria">
         <input type="file" id="fileInput" accept="video/*,.mp4,.mkv,.avi,.mov,.webm" hidden />
-        <p class="dropzone-title">拖放视频到此处，或点击选择</p>
-        <p class="dropzone-hint">最大 500MB · 压缩耗时取决于视频长度</p>
+        <p class="dropzone-title" data-i18n="vcomp.drop">拖放视频到此处，或点击选择</p>
+        <p class="dropzone-hint" data-i18n="vcomp.dropHint">最大 500MB · 压缩耗时取决于视频长度</p>
       </section>
       <div class="file-preview hidden" id="filePreview">
         <div class="file-info"><span class="file-name" id="fileName"></span><span class="file-size" id="fileSize"></span></div>
-        <button type="button" class="btn-ghost" id="clearBtn">清除</button>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear">清除</button>
       </div>
       <div class="controls">
-        <label class="field"><span class="field-label">输出格式</span><select id="formatSelect" class="select"></select></label>
-        <label class="field"><span class="field-label">分辨率</span><select id="resolutionSelect" class="select"></select></label>
+        <label class="field"><span class="field-label" data-i18n="vcomp.format">输出格式</span><select id="formatSelect" class="select"></select></label>
+        <label class="field"><span class="field-label" data-i18n="vcomp.res">分辨率</span><select id="resolutionSelect" class="select"></select></label>
         <label class="field">
-          <span class="field-label">画质 CRF（18 高画质 ← → 28 小体积）</span>
+          <span class="field-label" data-i18n="vcomp.crf">画质 CRF（18 高画质 ← → 28 小体积）</span>
           <input type="range" id="crfRange" min="18" max="28" value="23" class="range" />
           <span class="range-value" id="crfValue">23</span>
         </label>
-        <button type="button" class="btn-primary" id="submitBtn" disabled><span class="btn-text">开始压缩</span><span class="btn-spinner hidden"></span></button>
+        <button type="button" class="btn-primary" id="submitBtn" disabled><span class="btn-text" data-i18n="vcomp.start">开始压缩</span><span class="btn-spinner hidden"></span></button>
       </div>
       <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
       <div class="result hidden" id="resultBox">
         <div class="result-icon">✓</div>
         <div class="result-body">
-          <p class="result-title">压缩完成</p>
+          <p class="result-title" data-i18n="vcomp.done">压缩完成</p>
           <p class="result-name" id="resultName"></p>
           <div class="size-stats" id="sizeStats"></div>
         </div>
-        <a class="btn-download" id="downloadLink" download>下载视频</a>
+        <a class="btn-download" id="downloadLink" download data-i18n="common.downloadVideo">下载视频</a>
       </div>
     </main>
-    <footer class="footer"><span>本地处理 · 文件不会上传到第三方</span></footer>
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
   </div>
-  <script src="/video-compress.js"></script>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/video-compress.js?v=20261025i18n"></script>
 </body>
 </html>

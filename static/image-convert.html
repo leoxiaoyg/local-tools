@@ -3,57 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>图片转换</title>
+  <title data-i18n="convert.title">图片转换</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page">
-    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
     <header class="header">
       <div class="logo logo-image" aria-hidden="true">
         <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M11 21l4-5 3 3 5-7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
       </div>
       <div>
-        <h1>图片转换</h1>
-        <p class="subtitle">转换格式、调整尺寸，支持等比缩放与裁剪填充</p>
+        <h1 data-i18n="convert.title">图片转换</h1>
+        <p class="subtitle" data-i18n="convert.sub">转换格式、调整尺寸，支持等比缩放与裁剪填充</p>
       </div>
     </header>
     <main class="card">
-      <section class="dropzone" id="dropzone" tabindex="0" role="button">
-        <input type="file" id="fileInput" accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" hidden />
-        <p class="dropzone-title">拖放图片到此处，或点击选择</p>
-        <p class="dropzone-hint">支持 JPG、PNG、WebP、BMP、TIFF · 最大 50MB</p>
+      <input type="file" id="fileInput" accept="image/*,.jpg,.jpeg,.png,.webp,.bmp,.tif,.tiff" multiple hidden />
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" data-i18n-aria="image.dropAria">
+        <p class="dropzone-title" data-i18n="image.drop">拖放图片到此处，或点击选择（可多选）</p>
+        <p class="dropzone-hint" data-i18n="image.dropHint">支持 JPG、PNG、WebP、BMP、TIFF · 单文件 50MB · 批量合计 200MB / 50 张 · 可分多次添加</p>
       </section>
       <div class="file-preview hidden" id="filePreview">
         <div class="file-info"><span class="file-name" id="fileName"></span><span class="file-size" id="fileSize"></span></div>
-        <button type="button" class="btn-ghost" id="clearBtn">清除</button>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear">清除</button>
       </div>
-      <div class="preview-row hidden" id="previewRow"><img id="imagePreview" alt="预览" class="image-preview" /></div>
+      <ul class="file-queue hidden" id="fileQueue"></ul>
+      <div class="preview-row hidden" id="previewRow"><img id="imagePreview" alt="" class="image-preview" data-i18n-aria="common.preview" /></div>
       <div class="controls">
-        <label class="field"><span class="field-label">输出格式</span><select id="formatSelect" class="select"></select></label>
+        <label class="field"><span class="field-label" data-i18n="image.format">输出格式</span><select id="formatSelect" class="select"></select></label>
         <div class="field-row">
-          <label class="field"><span class="field-label">宽度（px，可选）</span><input type="number" id="widthInput" class="input" min="1" placeholder="自动" /></label>
-          <label class="field"><span class="field-label">高度（px，可选）</span><input type="number" id="heightInput" class="input" min="1" placeholder="自动" /></label>
+          <label class="field"><span class="field-label" data-i18n="convert.width">宽度（px，可选）</span><input type="number" id="widthInput" class="input" min="1" data-i18n-placeholder="convert.auto" placeholder="自动" /></label>
+          <label class="field"><span class="field-label" data-i18n="convert.height">高度（px，可选）</span><input type="number" id="heightInput" class="input" min="1" data-i18n-placeholder="convert.auto" placeholder="自动" /></label>
         </div>
-        <label class="field"><span class="field-label">缩放方式</span>
+        <label class="field"><span class="field-label" data-i18n="convert.resize">缩放方式</span>
           <select id="resizeMode" class="select">
-            <option value="fit">等比适应（不超出宽高）</option>
-            <option value="fill">裁剪填充（精确宽高）</option>
-            <option value="exact">拉伸至精确宽高</option>
+            <option value="fit" data-i18n="convert.fit">等比适应（不超出宽高）</option>
+            <option value="fill" data-i18n="convert.fill">裁剪填充（精确宽高）</option>
+            <option value="exact" data-i18n="convert.exact">拉伸至精确宽高</option>
           </select>
         </label>
-        <button type="button" class="btn-primary btn-primary-image" id="submitBtn" disabled><span class="btn-text">开始转换</span><span class="btn-spinner hidden"></span></button>
+        <button type="button" class="btn-primary btn-primary-image" id="submitBtn" disabled><span class="btn-text" data-i18n="convert.start">开始转换</span><span class="btn-spinner hidden"></span></button>
       </div>
       <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
       <div class="result hidden" id="resultBox">
         <div class="result-icon">✓</div>
-        <div class="result-body"><p class="result-title">转换完成</p><p class="result-name" id="resultName"></p><p class="result-note" id="resultMeta"></p></div>
+        <div class="result-body">
+          <p class="result-title" data-i18n="convert.done">转换完成</p>
+          <p class="result-name" id="resultName"></p>
+          <p class="result-note" id="resultMeta"></p>
+          <ul class="result-errors hidden" id="resultErrors"></ul>
+        </div>
         <a class="btn-download" id="downloadLink" download>下载图片</a>
       </div>
     </main>
-    <footer class="footer"><span>本地处理 · 文件不会上传到第三方</span></footer>
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
   </div>
-  <script src="/image-convert.js"></script>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/image-convert.js?v=20261025i18n"></script>
 </body>
 </html>

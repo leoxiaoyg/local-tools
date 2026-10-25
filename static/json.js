@@ -3,6 +3,8 @@ const outputArea = document.getElementById("outputArea");
 const statusBox = document.getElementById("statusBox");
 const statusText = document.getElementById("statusText");
 
+let lastStatus = null;
+
 function showStatus(msg, isError = false) {
   statusBox.classList.remove("hidden");
   statusBox.classList.toggle("error", isError);
@@ -10,13 +12,24 @@ function showStatus(msg, isError = false) {
 }
 
 function hideStatus() {
+  lastStatus = null;
   statusBox.classList.add("hidden");
 }
 
 function parseInput() {
   const text = inputArea.value.trim();
-  if (!text) throw new Error("请输入 JSON 文本");
+  if (!text) throw new Error(t("json.needText"));
   return JSON.parse(text);
+}
+
+function syntaxMessage(err) {
+  return err instanceof SyntaxError ? t("json.syntax", { msg: err.message }) : err.message;
+}
+
+function rememberError(err) {
+  lastStatus = err instanceof SyntaxError
+    ? { kind: "syntax", raw: err.message }
+    : { kind: "need" };
 }
 
 document.getElementById("btnFormat").addEventListener("click", () => {
@@ -26,7 +39,8 @@ document.getElementById("btnFormat").addEventListener("click", () => {
     hideStatus();
   } catch (e) {
     outputArea.value = "";
-    showStatus(e instanceof SyntaxError ? `JSON 语法错误：${e.message}` : e.message, true);
+    rememberError(e);
+    showStatus(syntaxMessage(e), true);
   }
 });
 
@@ -37,19 +51,22 @@ document.getElementById("btnMinify").addEventListener("click", () => {
     hideStatus();
   } catch (e) {
     outputArea.value = "";
-    showStatus(e instanceof SyntaxError ? `JSON 语法错误：${e.message}` : e.message, true);
+    rememberError(e);
+    showStatus(syntaxMessage(e), true);
   }
 });
 
 document.getElementById("btnValidate").addEventListener("click", () => {
   try {
     parseInput();
-    outputArea.value = "✓ JSON 格式有效";
-    showStatus("校验通过");
+    outputArea.value = t("json.valid");
+    lastStatus = { kind: "ok" };
+    showStatus(t("json.ok"));
     statusBox.classList.remove("error");
   } catch (e) {
     outputArea.value = "";
-    showStatus(e instanceof SyntaxError ? `JSON 语法错误：${e.message}` : e.message, true);
+    rememberError(e);
+    showStatus(syntaxMessage(e), true);
   }
 });
 
@@ -62,6 +79,23 @@ document.getElementById("btnClear").addEventListener("click", () => {
 document.getElementById("btnCopy").addEventListener("click", async () => {
   if (!outputArea.value) return;
   await navigator.clipboard.writeText(outputArea.value);
-  showStatus("已复制到剪贴板");
+  lastStatus = { kind: "copied" };
+  showStatus(t("json.copied"));
   statusBox.classList.remove("error");
+});
+
+document.addEventListener("lt-i18n", () => {
+  if (!lastStatus) return;
+  if (lastStatus.kind === "ok") {
+    outputArea.value = t("json.valid");
+    showStatus(t("json.ok"));
+    statusBox.classList.remove("error");
+  } else if (lastStatus.kind === "copied") {
+    showStatus(t("json.copied"));
+    statusBox.classList.remove("error");
+  } else if (lastStatus.kind === "syntax") {
+    showStatus(t("json.syntax", { msg: lastStatus.raw }), true);
+  } else if (lastStatus.kind === "need") {
+    showStatus(t("json.needText"), true);
+  }
 });

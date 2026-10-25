@@ -8,17 +8,23 @@
 |------|------|------|
 | 视频转音频 | `/video.html` | 从视频提取 MP3、WAV、AAC、M4A、OGG、FLAC |
 | 视频压缩 | `/video-compress.html` | 调整分辨率与 CRF，输出 MP4 / WebM |
-| 图片压缩 | `/image.html` | 尽量保持画质的前提下缩小体积，可指定上限 |
-| 图片转换 | `/image-convert.html` | 格式转换（JPG / PNG / WebP）、等比缩放与裁剪 |
+| 图片压缩 | `/image.html` | 尽量保持画质的前提下缩小体积，可指定上限；支持批量 zip |
+| 图片转换 | `/image-convert.html` | 格式转换（JPG / PNG / WebP）、等比缩放与裁剪；支持批量 zip |
+| EXIF 清除 | `/exif.html` | 查看并去掉拍摄时间、机型、GPS；免费 |
 | JSON 格式化 | `/json.html` | 格式化、压缩、校验（纯浏览器，不上传服务器） |
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
 | CSV ↔ Excel | `/csv-excel.html` | CSV 与 `.xlsx` 互转 |
+| 文档转换 | `/doc-convert.html` | 图片/PDF/OFD/Word/PPT 互转 |
+| PDF 工具 | `/pdf.html` | 合并、压缩、按页拆分 / 提取页 |
+
+界面支持中文 / English，右上角切换，偏好存在本机。接口错误文案跟随 `Accept-Language`。
 
 ## 环境要求
 
 - Python 3.10+
 - Windows 或 Linux
 - 无需单独安装 FFmpeg（通过 `imageio-ffmpeg` 内置）
+- Word / PPT → PDF 需要本机安装 **LibreOffice**（推荐）或 **Microsoft Office**（Windows）
 
 ## 快速开始
 
@@ -65,8 +71,13 @@ local-tools/
 │   ├── video_compressor.py
 │   ├── image_compressor.py
 │   ├── image_transform.py
-│   └── csv_excel.py
-├── static/               # 前端页面与静态资源
+│   ├── csv_excel.py
+│   ├── doc_converter.py
+│   ├── batch.py          # 批量处理 + zip
+│   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分
+│   ├── exif_tools.py     # EXIF 查看 / 清除
+│   └── i18n.py           # Web 错误与标签的 zh / en
+├── static/               # 前端页面与静态资源（含 locales.js / i18n.js）
 ├── requirements.txt
 ├── run.bat               # Windows 启动脚本
 └── run.sh                # Linux 启动脚本
@@ -77,9 +88,22 @@ local-tools/
 | 类型 | 上限 |
 |------|------|
 | 视频 | 500 MB |
-| 图片 | 50 MB |
+| 图片 | 单文件 50 MB；批量合计 200 MB / 最多 50 张 |
 | CSV / Excel | 20 MB |
+| 文档转换 | 80 MB |
+| PDF | 单文件 80 MB；合并合计 200 MB / 最多 30 个 |
 | Base64 文件编码 | 10 MB |
+
+## 文档转换说明
+
+| 转换 | 实现方式 | 说明 |
+|------|----------|------|
+| 图片 → PDF | Pillow | 纯 Python，支持多图合并 |
+| 图片 → OFD | easyofd | 纯 Python |
+| PDF → OFD | easyofd | 纯 Python；复杂版式可能有差异 |
+| PDF → Word | pdf2docx | 纯 Python；扫描件无 OCR |
+| Word → PDF | LibreOffice / MS Word | 需本机 Office 引擎 |
+| PPT → PDF | LibreOffice / MS PowerPoint | 需本机 Office 引擎 |
 
 ## 常见问题
 

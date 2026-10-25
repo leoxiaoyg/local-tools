@@ -1,5 +1,8 @@
 const statusBox = document.getElementById("statusBox");
 const statusText = document.getElementById("statusText");
+const fileHint = document.getElementById("fileHint");
+
+let selectedName = "";
 
 function showStatus(msg, isError = false) {
   statusBox.classList.remove("hidden");
@@ -9,16 +12,16 @@ function showStatus(msg, isError = false) {
 
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
-    document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+    document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
     tab.classList.add("active");
     document.getElementById("panelText").classList.toggle("hidden", tab.dataset.tab !== "text");
     document.getElementById("panelFile").classList.toggle("hidden", tab.dataset.tab !== "file");
   });
 });
 
-function stripDataUrl(s) {
-  const t = s.trim();
-  return t.includes(",") && t.startsWith("data:") ? t.split(",", 2)[1] : t;
+function stripDataUrl(value) {
+  const raw = value.trim();
+  return raw.includes(",") && raw.startsWith("data:") ? raw.split(",", 2)[1] : raw;
 }
 
 function bytesToBase64(bytes) {
@@ -40,7 +43,7 @@ document.getElementById("btnEncodeText").addEventListener("click", () => {
     document.getElementById("textOutput").value = b64;
     statusBox.classList.add("hidden");
   } catch {
-    showStatus("编码失败，请检查输入", true);
+    showStatus(t("b64.encodeFail"), true);
   }
 });
 
@@ -56,7 +59,7 @@ document.getElementById("btnDecodeText").addEventListener("click", () => {
     document.getElementById("textOutput").value = new TextDecoder().decode(bytes);
     statusBox.classList.add("hidden");
   } catch {
-    showStatus("Base64 无效或无法解码为 UTF-8 文本", true);
+    showStatus(t("b64.decodeFail"), true);
   }
 });
 
@@ -64,19 +67,20 @@ document.getElementById("btnCopyText").addEventListener("click", async () => {
   const out = document.getElementById("textOutput").value;
   if (!out) return;
   await navigator.clipboard.writeText(out);
-  showStatus("已复制");
+  showStatus(t("b64.copied"));
   statusBox.classList.remove("error");
 });
 
 document.getElementById("fileInput").addEventListener("change", async () => {
   const file = document.getElementById("fileInput").files[0];
   if (!file) return;
-  document.getElementById("fileHint").textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+  selectedName = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+  fileHint.textContent = selectedName;
   const formData = new FormData();
   formData.append("file", file);
   try {
     const res = await fetch("/api/base64/encode", { method: "POST", body: formData });
-    if (!res.ok) throw new Error((await res.json()).detail || "编码失败");
+    if (!res.ok) throw new Error((await res.json()).detail || t("b64.encodeFail"));
     const data = await res.json();
     document.getElementById("fileOutput").value = data.text;
     statusBox.classList.add("hidden");
@@ -87,22 +91,26 @@ document.getElementById("fileInput").addEventListener("change", async () => {
 
 document.getElementById("btnDecodeFile").addEventListener("click", async () => {
   const text = document.getElementById("decodeInput").value.trim();
-  if (!text) { showStatus("请输入 Base64", true); return; }
+  if (!text) { showStatus(t("b64.needB64"), true); return; }
   const formData = new FormData();
   formData.append("text", text);
   formData.append("filename", document.getElementById("decodeFilename").value || "decoded.bin");
   try {
     const res = await fetch("/api/base64/decode", { method: "POST", body: formData });
-    if (!res.ok) throw new Error((await res.json()).detail || "解码失败");
+    if (!res.ok) throw new Error((await res.json()).detail || t("b64.decodeFail"));
     const blob = await res.blob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
     a.download = formData.get("filename");
     a.click();
     URL.revokeObjectURL(a.href);
-    showStatus("文件已下载");
+    showStatus(t("b64.fileDone"));
     statusBox.classList.remove("error");
   } catch (e) {
     showStatus(e.message, true);
   }
+});
+
+document.addEventListener("lt-i18n", () => {
+  if (selectedName) fileHint.textContent = selectedName;
 });

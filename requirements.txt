@@ -4,3 +4,7 @@ python-multipart>=0.0.12
 imageio-ffmpeg>=0.5.1
 Pillow>=10.0.0
 openpyxl>=3.1.0
+pdf2docx>=0.5.8
+easyofd>=0.5.6
+PyMuPDF>=1.23.4
+comtypes>=1.4.0

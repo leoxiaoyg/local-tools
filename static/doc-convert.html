@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="doc.title">文档转换</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
+    <header class="header">
+      <div class="logo tool-icon-data" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M9 5h10l6 6v16a2 2 0 01-2 2H9a2 2 0 01-2-2V7a2 2 0 012-2z" stroke="currentColor" stroke-width="1.5"/><path d="M19 5v6h6M11 16h10M11 20h10M11 24h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n="doc.title">文档转换</h1>
+        <p class="subtitle" data-i18n="doc.sub">图片 / PDF / OFD / Word / PPT 本地互转，最大 80MB</p>
+      </div>
+    </header>
+
+    <main class="card">
+      <label class="field">
+        <span class="field-label" data-i18n="doc.type">转换类型</span>
+        <select id="conversionSelect" class="select"></select>
+        <p class="field-hint" id="conversionHint"></p>
+        <p class="field-hint warning hidden" id="officeWarning"></p>
+      </label>
+
+      <section class="dropzone" id="dropzone" tabindex="0" role="button">
+        <input type="file" id="fileInput" hidden />
+        <p class="dropzone-title" data-i18n="doc.drop">拖放文件到此处，或点击选择</p>
+        <p class="dropzone-hint" id="dropHint" data-i18n="doc.pickType">请先选择转换类型</p>
+      </section>
+
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-info">
+          <span class="file-name" id="fileName"></span>
+          <span class="file-size" id="fileSize"></span>
+        </div>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear">清除</button>
+      </div>
+
+      <div class="controls">
+        <button type="button" class="btn-primary" id="submitBtn" disabled>
+          <span class="btn-text" data-i18n="doc.start">开始转换</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </div>
+
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon">✓</div>
+        <div class="result-body">
+          <p class="result-title" data-i18n="doc.done">转换完成</p>
+          <p class="result-name" id="resultName"></p>
+        </div>
+        <a class="btn-download" id="downloadLink" download data-i18n="common.download">下载文件</a>
+      </div>
+    </main>
+
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
+  </div>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/doc-convert.js?v=20261025i18n"></script>
+</body>
+</html>

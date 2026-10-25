@@ -3,45 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CSV ↔ Excel</title>
+  <title data-i18n="csv.title">CSV ↔ Excel</title>
   <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles.css?v=20261025i18n" />
 </head>
 <body>
   <div class="page">
-    <nav class="nav"><a href="/">← 全部工具</a></nav>
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
     <header class="header">
       <div class="logo tool-icon-data" aria-hidden="true">
         <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 12h20M6 18h20M14 6v20" stroke="currentColor" stroke-width="1.5"/></svg>
       </div>
       <div>
-        <h1>CSV ↔ Excel</h1>
-        <p class="subtitle">CSV 与 Excel (.xlsx) 互相转换，最大 20MB</p>
+        <h1 data-i18n="csv.title">CSV ↔ Excel</h1>
+        <p class="subtitle" data-i18n="csv.sub">CSV 与 Excel (.xlsx) 互相转换，最大 20MB</p>
       </div>
     </header>
 
     <main class="card card-section">
-      <h3 class="section-title">CSV → Excel</h3>
+      <h3 class="section-title" data-i18n="csv.toExcel">CSV → Excel</h3>
       <section class="dropzone dropzone-sm" id="dropCsv" tabindex="0" role="button">
         <input type="file" id="csvInput" accept=".csv,text/csv" hidden />
-        <p class="dropzone-title">选择 CSV 文件</p>
+        <p class="dropzone-title" data-i18n="csv.pickCsv">选择 CSV 文件</p>
       </section>
-      <button type="button" class="btn-primary" id="btnCsvToExcel" disabled>转换为 Excel</button>
+      <button type="button" class="btn-primary" id="btnCsvToExcel" disabled data-i18n="csv.btnExcel">转换为 Excel</button>
     </main>
 
     <main class="card card-section" style="margin-top:16px">
-      <h3 class="section-title">Excel → CSV</h3>
+      <h3 class="section-title" data-i18n="csv.toCsv">Excel → CSV</h3>
       <section class="dropzone dropzone-sm" id="dropExcel" tabindex="0" role="button">
         <input type="file" id="excelInput" accept=".xlsx,.xlsm" hidden />
-        <p class="dropzone-title">选择 Excel 文件 (.xlsx)</p>
+        <p class="dropzone-title" data-i18n="csv.pickExcel">选择 Excel 文件 (.xlsx)</p>
       </section>
-      <label class="field"><span class="field-label">工作表（序号或名称，默认 0）</span><input type="text" id="sheetName" class="input" value="0" /></label>
-      <button type="button" class="btn-primary" id="btnExcelToCsv" disabled>转换为 CSV</button>
+      <label class="field"><span class="field-label" data-i18n="csv.sheet">工作表（序号或名称，默认 0）</span><input type="text" id="sheetName" class="input" value="0" /></label>
+      <button type="button" class="btn-primary" id="btnExcelToCsv" disabled data-i18n="csv.btnCsv">转换为 CSV</button>
     </main>
 
     <div class="status hidden" id="statusBox" style="max-width:560px;margin:16px auto 0"><p class="status-text" id="statusText"></p></div>
-    <footer class="footer"><span>本地处理 · 文件不会上传到第三方</span></footer>
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
   </div>
-  <script src="/csv-excel.js"></script>
+  <script src="/locales.js?v=20261025i18n"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/csv-excel.js?v=20261025i18n"></script>
 </body>
 </html>
