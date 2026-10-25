@@ -11,6 +11,7 @@
 | 图片压缩、格式/尺寸转换、文字水印 | 视频转音频、视频压缩 |
 | 查看 / 清除 EXIF | Word / PPT 等 Office 转换 |
 | PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 便携 exe |
+| CSV 去空行、去重、留列 | 透视、公式、Excel 清洗 |
 
 和网页是同一套处理函数。网页能压成什么样，命令行就是什么样。
 
@@ -121,6 +122,23 @@ python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
 
 合并至少 2 个文件。合并 / 压缩 / 拆分遇到已加密文件时，请先 `pdf decrypt`。密码只在本机使用，不是法律或合规认证。
 
+### 4.5 CSV 清洗
+
+```bash
+python -m app csv clean data.csv
+python -m app csv clean data.csv --keep sku,name -o clean.csv
+python -m app csv clean a.csv b.csv --keep 1,3 -o cleaned-csv.zip
+python -m app csv clean data.csv --no-drop-empty --no-dedupe
+```
+
+| 参数 | 含义 | 默认 |
+|---|---|---|
+| `--keep` | 要保留的列名或 1 起的列序号，逗号分隔（中文逗号也可） | 全留 |
+| `--no-drop-empty` | 保留整行空白 | 去掉空行 |
+| `--no-dedupe` | 保留完全相同的行 | 去重，保留首次出现 |
+
+第一行当表头。输出 UTF-8 BOM（`utf-8-sig`），方便 Excel 打开。不做透视或公式。
+
 ## 5. 上限（与网页相同）
 
 | 类型 | 上限 |
@@ -128,6 +146,7 @@ python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
 | 图片 | 单文件 50MB；一批最多 50 个、合计 200MB |
 | PDF | 单文件 80MB；合并最多 30 个、合计 200MB |
 | 按页拆分 | 最多 400 页 |
+| CSV 清洗 | 单文件 20MB / 最多 20 万行；一批最多 50 个、合计 200MB |
 
 ## 6. 和非目标相关的常见误解
 

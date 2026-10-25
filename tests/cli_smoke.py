@@ -176,6 +176,16 @@ def main() -> int:
         if not marked.exists() or marked.stat().st_size < 1:
             raise AssertionError("16 no watermarked file")
 
+        raw_csv = work / "raw.csv"
+        raw_csv.write_text("sku,name,extra\nA,Apple,x\n\nA,Apple,x\nB,Banana,y\n", encoding="utf-8")
+        cleaned = work / "out.csv"
+        r = run(["csv", "clean", str(raw_csv), "--keep", "sku,name", "-o", str(cleaned)])
+        expect_ok("17 csv clean", r)
+        text = cleaned.read_text(encoding="utf-8-sig")
+        lines = [line for line in text.splitlines() if line.strip() != ""]
+        if lines != ["sku,name", "A,Apple", "B,Banana"]:
+            raise AssertionError(f"17 unexpected csv: {lines!r}")
+
         print("CLI_SMOKE_OK")
         return 0
     finally:

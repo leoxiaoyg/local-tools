@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title data-i18n="clean.title">CSV 清洗</title>
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="/styles.css?v=20261025csv" />
+</head>
+<body>
+  <div class="page">
+    <nav class="nav">
+      <a href="/" data-i18n="nav.all">← 全部工具</a>
+      <div class="lang-switch" role="group" aria-label="Language">
+        <button type="button" data-lang="zh">中文</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </nav>
+    <header class="header">
+      <div class="logo tool-icon-data" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><rect x="6" y="6" width="20" height="20" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M6 12h20M6 18h20M14 6v20" stroke="currentColor" stroke-width="1.5"/></svg>
+      </div>
+      <div>
+        <h1 data-i18n="clean.title">CSV 清洗</h1>
+        <p class="subtitle" data-i18n="clean.sub">去掉空行、去掉重复行、只留需要的列。不做透视或公式。</p>
+      </div>
+    </header>
+    <main class="card">
+      <input type="file" id="fileInput" accept=".csv,text/csv" multiple hidden />
+      <section class="dropzone" id="dropzone" tabindex="0" role="button" data-i18n-aria="clean.dropAria">
+        <p class="dropzone-title" data-i18n="clean.drop">拖放 CSV 到此处，或点击选择（可多选）</p>
+        <p class="dropzone-hint" data-i18n="clean.dropHint">单文件 20MB · 一批最多 50 个、合计 200MB · 第一行当表头</p>
+      </section>
+      <div class="file-preview hidden" id="filePreview">
+        <div class="file-info"><span class="file-name" id="fileName"></span><span class="file-size" id="fileSize"></span></div>
+        <button type="button" class="btn-ghost" id="clearBtn" data-i18n="common.clear">清除</button>
+      </div>
+      <ul class="file-queue hidden" id="fileQueue"></ul>
+      <div class="controls">
+        <label class="field"><span><input type="checkbox" id="dropEmpty" checked /> <span data-i18n="clean.dropEmpty">去掉空行</span></span></label>
+        <label class="field"><span><input type="checkbox" id="dedupe" checked /> <span data-i18n="clean.dedupe">去掉完全相同的行</span></span></label>
+        <label class="field">
+          <span class="field-label" data-i18n="clean.keep">保留的列（可选）</span>
+          <input type="text" id="keepInput" class="input" data-i18n-placeholder="clean.keepPh" placeholder="例如 sku,name 或 1,3；空则全留" />
+        </label>
+        <button type="button" class="btn-primary" id="submitBtn" disabled>
+          <span class="btn-text" data-i18n="clean.start">开始清洗</span>
+          <span class="btn-spinner hidden"></span>
+        </button>
+      </div>
+      <div class="status hidden" id="statusBox"><p class="status-text" id="statusText"></p></div>
+      <div class="result hidden" id="resultBox">
+        <div class="result-icon">✓</div>
+        <div class="result-body">
+          <p class="result-title" data-i18n="clean.done">清洗完成</p>
+          <p class="result-name" id="resultName"></p>
+          <p class="result-note" id="resultMeta"></p>
+          <ul class="result-errors hidden" id="resultErrors"></ul>
+        </div>
+        <a class="btn-download" id="downloadLink" download>下载文件</a>
+      </div>
+    </main>
+    <footer class="footer"><span data-i18n="common.localFooter">本地处理 · 文件不会上传到第三方</span></footer>
+  </div>
+  <script src="/locales.js?v=20261025csv"></script>
+  <script src="i18n.js?v=20261025i18n"></script>
+  <script src="/csv-clean.js?v=20261025csv2"></script>
+</body>
+</html>

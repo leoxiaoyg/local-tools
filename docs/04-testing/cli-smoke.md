@@ -4,7 +4,7 @@
 
 | # | 步骤 | 输入 | 预期 | 结果 |
 |---|---|---|---|---|
-| 1 | `python -m app --help` | 无 | 列出 image / exif / pdf，退出 0 | |
+| 1 | `python -m app --help` | 无 | 列出 image / exif / pdf / csv，退出 0 | |
 | 2 | `python -m app --lang en image compress 不存在.jpg` | 无此文件 | stderr：`File not found`，退出非 0 | |
 | 3 | `image compress a.jpg -o a_small.jpg` | 小 JPEG | 产出文件，stdout 含「已写入」 | |
 | 4 | `image convert a.jpg --format webp -o a.webp` | 同上 | 产出 `.webp` | |
@@ -20,6 +20,7 @@
 | 14 | `pdf decrypt locked.pdf --password secret -o opened.pdf` | 上一步结果 | 产出文件；无需密码可开 | |
 | 15 | `pdf decrypt locked.pdf --password nope`（`--lang en`） | 上一步加密文件 | 退出非 0 | |
 | 16 | `image watermark a.jpg --text Shop -o wm.jpg` | 小 JPEG | 产出文件 | |
+| 17 | `csv clean a.csv --keep sku,name -o out.csv` | 含空行/重复行/多余列 | 产出文件；去掉空行与重复行，只留 sku、name | |
 
 可复跑脚本（项目根目录）：`python tests/cli_smoke.py`，通过时打印 `CLI_SMOKE_OK`。
 

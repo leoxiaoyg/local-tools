@@ -16,10 +16,11 @@ from app.image_compressor import OUTPUT_FORMATS, compress_image
 from app.image_transform import EXPORT_FORMATS, transform_image
 from app.pdf_tools import DEFAULT_PERMISSIONS, compress_pdf, decrypt_pdf, encrypt_pdf, merge_pdfs, split_pdf
 from app.watermark import POSITIONS, apply_text_watermark
+from app.csv_clean import clean_csv
 
 HELP = {
     "zh": {
-        "prog": "本地处理图片与 PDF，不经 HTTP。",
+        "prog": "本地处理图片、PDF 与 CSV，不经 HTTP。",
         "lang": "界面语言（默认跟系统；也可用 LT_LANG）",
         "inputs": "输入文件，支持通配符",
         "output": "输出路径：单文件写文件，多文件写 zip；目录则逐个写出",
@@ -56,9 +57,14 @@ HELP = {
         "no_modify": "禁止修改",
         "no_copy": "禁止复制文本",
         "no_annotate": "禁止批注",
+        "csv": "CSV 工具",
+        "csv_clean": "清洗 CSV：去空行、去重、留列",
+        "keep_cols": "保留的列名或序号，逗号分隔",
+        "no_drop_empty": "不去掉空行",
+        "no_dedupe": "不去重",
     },
     "en": {
-        "prog": "Process images and PDFs locally. Does not use HTTP.",
+        "prog": "Process images, PDFs, and CSVs locally. Does not use HTTP.",
         "lang": "UI language (defaults to the system; LT_LANG also works)",
         "inputs": "Input files. Globs are allowed",
         "output": "Output path: one file, a zip for many, or a directory",
@@ -95,6 +101,11 @@ HELP = {
         "no_modify": "Disallow changes",
         "no_copy": "Disallow copying text",
         "no_annotate": "Disallow annotations",
+        "csv": "CSV tools",
+        "csv_clean": "Clean a CSV: drop empty rows, dedupe, keep columns",
+        "keep_cols": "Columns to keep, names or 1-based indexes",
+        "no_drop_empty": "Keep empty rows",
+        "no_dedupe": "Keep duplicate rows",
     },
 }
 
@@ -299,6 +310,39 @@ def cmd_image_watermark(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="watermarked.jpg", default_zip="watermarked-images.zip", count=len(files))
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        write_path(batch.zip_path, dest)
+        return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
+def cmd_csv_clean(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        paths = collect_paths(args.inputs, lang)
+        files = read_files(paths)
+
+        def handle(data: bytes, name: str):
+            return clean_csv(
+                data,
+                name,
+                drop_empty=not args.no_drop_empty,
+                dedupe=not args.no_dedupe,
+                keep_columns=args.keep or "",
+            )
+
+        if len(files) == 1:
+            result = handle(*files[0])
+            dest = resolve_dest(args.output, single_name=result.filename, default_zip="cleaned-csv.zip", count=1)
+            write_path(result.path, dest)
+            return report_written(lang, dest, _t(lang, result.message))
+
+        if args.output and Path(args.output).is_dir():
+            ok, fail = write_batch_dir(files, handle, Path(args.output))
+            return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
+
+        dest = resolve_dest(args.output, single_name="clean.csv", default_zip="cleaned-csv.zip", count=len(files))
         batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
@@ -583,6 +627,16 @@ def build_parser(lang: str) -> argparse.ArgumentParser:
     decrypt.add_argument("-o", "--output", help=text["output"])
     decrypt.add_argument("--password", default="", help=text["password"])
     decrypt.set_defaults(func=cmd_pdf_decrypt)
+
+    csv_group = groups.add_parser("csv", help=text["csv"], parents=[lang_parent])
+    csv_cmds = csv_group.add_subparsers(dest="cmd", required=True)
+    clean = csv_cmds.add_parser("clean", help=text["csv_clean"], parents=[lang_parent])
+    clean.add_argument("inputs", nargs="+", help=text["inputs"])
+    clean.add_argument("-o", "--output", help=text["output"])
+    clean.add_argument("--keep", default="", help=text["keep_cols"])
+    clean.add_argument("--no-drop-empty", action="store_true", help=text["no_drop_empty"])
+    clean.add_argument("--no-dedupe", action="store_true", help=text["no_dedupe"])
+    clean.set_defaults(func=cmd_csv_clean)
 
     return parser
 

@@ -13,6 +13,7 @@ from app.i18n import localize_items, parse_lang, translate_text
 
 from app.batch import run_batch
 from app.converter import AUDIO_FORMATS, convert_uploaded_file
+from app.csv_clean import clean_csv
 from app.csv_excel import csv_to_excel, excel_to_csv
 from app.doc_converter import (
     convert_documents,
@@ -36,7 +37,7 @@ from app.video_compressor import RESOLUTIONS, VIDEO_OUTPUT, compress_video_file
 app = FastAPI(title="Local Tools", version="2.0.0")
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
-MESSAGE_HEADERS = ("x-exif-message", "x-pdf-message", "x-compress-message")
+MESSAGE_HEADERS = ("x-exif-message", "x-pdf-message", "x-compress-message", "x-watermark-message", "x-csv-message")
 
 
 @app.middleware("http")
@@ -607,6 +608,65 @@ async def decrypt_pdf_batch(
     return _batch_zip_response(payload, handler, "unlocked-pdfs.zip")
 
 
+def _form_flag(raw: str) -> bool:
+    return (raw or "").strip().lower() in {"1", "true", "on", "yes"}
+
+
+@app.post("/api/csv/clean")
+async def clean_csv_file(
+    file: UploadFile = File(...),
+    drop_empty: str = Form("true"),
+    dedupe: str = Form("true"),
+    keep: str = Form(""),
+):
+    payload = await _read_csv_uploads([file])
+    try:
+        result = clean_csv(
+            payload[0][0],
+            payload[0][1],
+            drop_empty=_form_flag(drop_empty),
+            dedupe=_form_flag(dedupe),
+            keep_columns=keep,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return FileResponse(
+        path=result.path,
+        media_type=result.mime,
+        filename=result.filename,
+        headers={
+            "X-Original-Size": str(result.original_size),
+            "X-Output-Size": str(result.output_size),
+            "X-Csv-Message": quote(result.message, safe=""),
+        },
+        background=BackgroundTask(_cleanup, result.path),
+    )
+
+
+@app.post("/api/csv/clean-batch")
+async def clean_csv_batch(
+    files: list[UploadFile] = File(...),
+    drop_empty: str = Form("true"),
+    dedupe: str = Form("true"),
+    keep: str = Form(""),
+):
+    payload = await _read_csv_uploads(files)
+    drop = _form_flag(drop_empty)
+    unique = _form_flag(dedupe)
+
+    def handler(content: bytes, filename: str):
+        result = clean_csv(
+            content,
+            filename,
+            drop_empty=drop,
+            dedupe=unique,
+            keep_columns=keep,
+        )
+        return result.path, result.filename
+
+    return _batch_zip_response(payload, handler, "cleaned-csv.zip")
+
+
 @app.post("/api/csv/to-excel")
 async def convert_csv_to_excel(file: UploadFile = File(...)):
     if not file.filename:
@@ -756,6 +816,23 @@ def _parse_optional_int(value: str, error: str) -> int | None:
         return int(cleaned)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=error) from exc
+
+
+async def _read_csv_uploads(files: list[UploadFile]) -> list[tuple[bytes, str]]:
+    if not files:
+        raise HTTPException(status_code=400, detail="请选择 CSV 文件")
+    max_size = 20 * 1024 * 1024
+    payload: list[tuple[bytes, str]] = []
+    for upload in files:
+        if not upload.filename:
+            raise HTTPException(status_code=400, detail="请选择 CSV 文件")
+        content = await upload.read()
+        if not content:
+            raise HTTPException(status_code=400, detail=f"文件为空: {upload.filename}")
+        if len(content) > max_size:
+            raise HTTPException(status_code=400, detail=f"{upload.filename} 过大，单文件最大 20MB")
+        payload.append((content, upload.filename))
+    return payload
 
 
 async def _read_image_uploads(files: list[UploadFile]) -> list[tuple[bytes, str]]:

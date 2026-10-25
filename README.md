@@ -15,6 +15,7 @@
 | JSON 格式化 | `/json.html` | 格式化、压缩、校验（纯浏览器，不上传服务器） |
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
 | CSV ↔ Excel | `/csv-excel.html` | CSV 与 `.xlsx` 互转 |
+| CSV 清洗 | `/csv-clean.html` | 去空行、去重、只留指定列；支持批量 zip |
 | 文档转换 | `/doc-convert.html` | 图片/PDF/OFD/Word/PPT 互转 |
 | PDF 工具 | `/pdf.html` | 合并、压缩、按页拆分 / 提取页、加密 / 解密 |
 
@@ -60,7 +61,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ## 命令行
 
-与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、EXIF、PDF 合并压缩拆分与加密解密。视频与 Office 转换暂不提供。
+与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、EXIF、PDF 合并压缩拆分与加密解密、CSV 清洗。视频与 Office 转换暂不提供。
 
 ```bash
 python -m app --help
@@ -74,6 +75,7 @@ python -m app pdf compress invoice.pdf --preset strong
 python -m app pdf split doc.pdf --mode range --pages 1-3,5
 python -m app pdf encrypt invoice.pdf --user-pw secret -o locked.pdf
 python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
+python -m app csv clean data.csv --keep sku,name
 ```
 
 `--lang zh|en` 控制提示语言，也可设环境变量 `LT_LANG`。多文件默认打成 zip；`-o` 指向已有目录时逐个写出。
@@ -96,6 +98,7 @@ local-tools/
 │   ├── image_transform.py
 │   ├── watermark.py      # 文字水印
 │   ├── csv_excel.py
+│   ├── csv_clean.py      # CSV 去空行 / 去重 / 留列
 │   ├── doc_converter.py
 │   ├── batch.py          # 批量处理 + zip
 │   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分 / 加密
@@ -117,7 +120,7 @@ local-tools/
 |------|------|
 | 视频 | 500 MB |
 | 图片 | 单文件 50 MB；批量合计 200 MB / 最多 50 张 |
-| CSV / Excel | 20 MB |
+| CSV / Excel | 单文件 20 MB；清洗批量合计 200 MB / 最多 50 个 |
 | 文档转换 | 80 MB |
 | PDF | 单文件 80 MB；合并合计 200 MB / 最多 30 个 |
 | Base64 文件编码 | 10 MB |
