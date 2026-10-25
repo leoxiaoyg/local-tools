@@ -13,6 +13,7 @@ from pathlib import Path
 
 from PIL import Image
 import fitz
+import imageio_ffmpeg
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = sys.executable
@@ -47,6 +48,22 @@ def make_image(path: Path, color: str) -> None:
     Image.new("RGB", (80, 60), color).save(path, quality=95)
 
 
+def make_video(path: Path) -> None:
+    cmd = [
+        imageio_ffmpeg.get_ffmpeg_exe(),
+        "-y",
+        "-f", "lavfi", "-i", "testsrc=size=160x120:rate=8:duration=1",
+        "-f", "lavfi", "-i", "sine=frequency=440:duration=1",
+        "-shortest",
+        "-c:v", "libx264", "-pix_fmt", "yuv420p", "-preset", "ultrafast",
+        "-c:a", "aac",
+        str(path),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace")
+    if result.returncode != 0 or not path.exists():
+        raise AssertionError(f"could not make sample video\n{result.stderr[-500:]}")
+
+
 def make_pdf(path: Path, text: str, pages: int = 1) -> None:
     doc = fitz.open()
     for index in range(pages):
@@ -70,8 +87,8 @@ def main() -> int:
 
         help_out = run(["--help"])
         expect_ok("1 help", help_out)
-        if "image" not in help_out.stdout or "pdf" not in help_out.stdout:
-            raise AssertionError("help missing image/pdf")
+        if "image" not in help_out.stdout or "pdf" not in help_out.stdout or "video" not in help_out.stdout:
+            raise AssertionError("help missing image/pdf/video")
 
         missing = run(["image", "compress", str(work / "nope.jpg")], lang="en")
         expect_fail("2 missing file", missing)
@@ -185,6 +202,32 @@ def main() -> int:
         lines = [line for line in text.splitlines() if line.strip() != ""]
         if lines != ["sku,name", "A,Apple", "B,Banana"]:
             raise AssertionError(f"17 unexpected csv: {lines!r}")
+
+        clip = work / "片段.mp4"
+        make_video(clip)
+        audio = work / "out.mp3"
+        r = run(["video", "audio", str(clip), "--format", "mp3", "-o", str(audio)])
+        expect_ok("18 video audio", r)
+        if not audio.exists() or audio.stat().st_size < 1:
+            raise AssertionError("18 no mp3")
+
+        packed = work / "small.mp4"
+        r = run(["video", "compress", str(clip), "--crf", "28", "--resolution", "480", "-o", str(packed)])
+        expect_ok("19 video compress", r)
+        if not packed.exists() or packed.stat().st_size < 1:
+            raise AssertionError("19 no mp4")
+
+        note = work / "nope.txt"
+        note.write_text("not a video", encoding="utf-8")
+        bad = run(["video", "audio", str(note)], lang="en")
+        expect_fail("20 not a video", bad)
+        if "Unsupported video format" not in (bad.stderr + bad.stdout):
+            raise AssertionError(f"20 expected format error, got {bad.stderr!r}")
+
+        crf = run(["video", "compress", str(clip), "--crf", "40", "-o", str(work / "bad.mp4")], lang="en")
+        expect_fail("21 crf range", crf)
+        if "CRF must be an integer from 18 to 28" not in (crf.stderr + crf.stdout):
+            raise AssertionError(f"21 expected crf error, got {crf.stderr!r}")
 
         print("CLI_SMOKE_OK")
         return 0

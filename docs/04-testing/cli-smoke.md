@@ -4,7 +4,7 @@
 
 | # | 步骤 | 输入 | 预期 | 结果 |
 |---|---|---|---|---|
-| 1 | `python -m app --help` | 无 | 列出 image / exif / pdf / csv，退出 0 | |
+| 1 | `python -m app --help` | 无 | 列出 image / exif / pdf / csv / video，退出 0 | |
 | 2 | `python -m app --lang en image compress 不存在.jpg` | 无此文件 | stderr：`File not found`，退出非 0 | |
 | 3 | `image compress a.jpg -o a_small.jpg` | 小 JPEG | 产出文件，stdout 含「已写入」 | |
 | 4 | `image convert a.jpg --format webp -o a.webp` | 同上 | 产出 `.webp` | |
@@ -21,12 +21,16 @@
 | 15 | `pdf decrypt locked.pdf --password nope`（`--lang en`） | 上一步加密文件 | 退出非 0 | |
 | 16 | `image watermark a.jpg --text Shop -o wm.jpg` | 小 JPEG | 产出文件 | |
 | 17 | `csv clean a.csv --keep sku,name -o out.csv` | 含空行/重复行/多余列 | 产出文件；去掉空行与重复行，只留 sku、name | |
+| 18 | `video audio 片段.mp4 --format mp3 -o out.mp3` | 1 秒短片 | 产出 mp3 | |
+| 19 | `video compress a.mp4 --crf 28 --resolution 480 -o out.mp4` | 同上 | 产出 mp4 | |
+| 20 | `video audio nope.txt`（`--lang en`） | 非视频 | 退出非 0，stderr 含 `Unsupported video format` | |
+| 21 | `video compress a.mp4 --crf 40` | 短片 | 退出非 0 | |
 
 可复跑脚本（项目根目录）：`python tests/cli_smoke.py`，通过时打印 `CLI_SMOKE_OK`。
 
 ## 不测（本里程碑）
 
-视频、Office、exe。加密权限位是否被所有阅读器严格执行，只做打开/解密验证。
+Office、exe、视频画质逐帧对比。加密权限位是否被所有阅读器严格执行，只做打开/解密验证。视频冒烟只用约 1 秒的短片。
 
 ## 回归登记
 

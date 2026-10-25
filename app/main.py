@@ -12,7 +12,7 @@ from urllib.parse import quote, unquote
 from app.i18n import localize_items, parse_lang, translate_text
 
 from app.batch import run_batch
-from app.converter import AUDIO_FORMATS, convert_uploaded_file
+from app.converter import AUDIO_FORMATS, MAX_VIDEO_BYTES, convert_uploaded_file
 from app.csv_clean import clean_csv
 from app.csv_excel import csv_to_excel, excel_to_csv
 from app.doc_converter import (
@@ -149,7 +149,7 @@ async def convert_video(
     if not content:
         raise HTTPException(status_code=400, detail="文件为空")
 
-    max_size = 500 * 1024 * 1024
+    max_size = MAX_VIDEO_BYTES
     if len(content) > max_size:
         raise HTTPException(status_code=400, detail="文件过大，最大支持 500MB")
 
@@ -182,7 +182,7 @@ async def compress_video(
     if not content:
         raise HTTPException(status_code=400, detail="文件为空")
 
-    max_size = 500 * 1024 * 1024
+    max_size = MAX_VIDEO_BYTES
     if len(content) > max_size:
         raise HTTPException(status_code=400, detail="文件过大，最大支持 500MB")
 

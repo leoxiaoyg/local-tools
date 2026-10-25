@@ -5,6 +5,7 @@ from pathlib import Path
 import imageio_ffmpeg
 
 FFMPEG = imageio_ffmpeg.get_ffmpeg_exe()
+MAX_VIDEO_BYTES = 500 * 1024 * 1024
 
 AUDIO_FORMATS = {
     "mp3": {
@@ -80,6 +81,11 @@ def extract_audio(input_path: Path, output_path: Path, fmt: str) -> None:
 
 
 def convert_uploaded_file(file_bytes: bytes, original_name: str, fmt: str) -> tuple[Path, dict]:
+    if not file_bytes:
+        raise ValueError("文件为空")
+    if len(file_bytes) > MAX_VIDEO_BYTES:
+        raise ValueError("文件过大，最大支持 500MB")
+
     suffix = Path(original_name).suffix.lower()
     if suffix and suffix not in VIDEO_EXTENSIONS:
         raise ValueError(f"不支持的视频格式: {suffix}")

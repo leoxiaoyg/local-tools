@@ -80,6 +80,7 @@
 5. **CLI 模式** —— 映射已有 handler
 6. **基础文字水印** —— 已落地
 7. **CSV 清洗** —— 去空行 / 去重 / 留列；Web + CLI
+8. **CLI 补视频** —— 转音频 + 压缩；与网页同一套函数
 
 ---
 
@@ -106,7 +107,7 @@
 | 图片 EXIF 清除 | ✅ 已落地 | `/exif.html` · 免费，支持批量 zip |
 | 首页分组 + 视觉统一 | ✅ 已落地 | 2026-10-24 · 跟随系统暗色 |
 | 国际化（i18n） | ✅ 已落地 | **MVP 第 4** · Web zh/en · 本地记忆 · 接口错误随 Accept-Language |
-| CLI 模式 | ✅ 首刀已落地 | **MVP 第 5** · `python -m app` · 图片 / EXIF / PDF；视频与 Office 未做 |
+| CLI 模式 | ✅ 已补视频 | **MVP 第 5 / 第 8** · `python -m app` · 图片 / EXIF / PDF / CSV / 视频转音频与压缩；Office 未做 |
 | 基础文字水印 | ✅ 已落地 | `/watermark.html` · `image watermark` · 无铺满/贴图 |
 | CSV 清洗 | ✅ 已落地 | `/csv-clean.html` · `csv clean` · 去空行/去重/留列；无透视/公式 |
 | 便携 exe | ⏸ 推迟 | 先 CLI |

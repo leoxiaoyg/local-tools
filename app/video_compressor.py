@@ -2,7 +2,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from app.converter import FFMPEG, VIDEO_EXTENSIONS
+from app.converter import FFMPEG, MAX_VIDEO_BYTES, VIDEO_EXTENSIONS
 
 VIDEO_OUTPUT = {
     "mp4": {
@@ -38,6 +38,10 @@ def compress_video_file(
     crf: int = 23,
     resolution: str = "original",
 ) -> tuple[Path, dict]:
+    if not file_bytes:
+        raise ValueError("文件为空")
+    if len(file_bytes) > MAX_VIDEO_BYTES:
+        raise ValueError("文件过大，最大支持 500MB")
     if output_format not in VIDEO_OUTPUT:
         raise ValueError(f"不支持的输出格式: {output_format}")
 

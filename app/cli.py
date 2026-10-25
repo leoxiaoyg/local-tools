@@ -7,20 +7,23 @@ import glob
 import json
 import shutil
 import sys
+import zipfile
 from pathlib import Path
 
-from app.batch import run_batch
+from app.batch import run_batch, safe_entry_name
+from app.converter import AUDIO_FORMATS, MAX_VIDEO_BYTES, convert_uploaded_file
+from app.csv_clean import clean_csv
 from app.exif_tools import inspect_exif, strip_exif
 from app.i18n import detect_cli_lang, translate_text
 from app.image_compressor import OUTPUT_FORMATS, compress_image
 from app.image_transform import EXPORT_FORMATS, transform_image
 from app.pdf_tools import DEFAULT_PERMISSIONS, compress_pdf, decrypt_pdf, encrypt_pdf, merge_pdfs, split_pdf
+from app.video_compressor import RESOLUTIONS, VIDEO_OUTPUT, compress_video_file
 from app.watermark import POSITIONS, apply_text_watermark
-from app.csv_clean import clean_csv
 
 HELP = {
     "zh": {
-        "prog": "本地处理图片、PDF 与 CSV，不经 HTTP。",
+        "prog": "本地处理图片、视频、PDF 与 CSV，不经 HTTP。",
         "lang": "界面语言（默认跟系统；也可用 LT_LANG）",
         "inputs": "输入文件，支持通配符",
         "output": "输出路径：单文件写文件，多文件写 zip；目录则逐个写出",
@@ -62,9 +65,16 @@ HELP = {
         "keep_cols": "保留的列名或序号，逗号分隔",
         "no_drop_empty": "不去掉空行",
         "no_dedupe": "不去重",
+        "video": "视频工具",
+        "video_audio": "从视频提取音频",
+        "video_compress": "压缩视频",
+        "audio_format": "音频格式",
+        "video_format": "视频输出格式",
+        "crf": "画质 CRF，18 高画质到 28 小体积",
+        "resolution": "分辨率上限",
     },
     "en": {
-        "prog": "Process images, PDFs, and CSVs locally. Does not use HTTP.",
+        "prog": "Process images, video, PDFs, and CSVs locally. Does not use HTTP.",
         "lang": "UI language (defaults to the system; LT_LANG also works)",
         "inputs": "Input files. Globs are allowed",
         "output": "Output path: one file, a zip for many, or a directory",
@@ -106,8 +116,24 @@ HELP = {
         "keep_cols": "Columns to keep, names or 1-based indexes",
         "no_drop_empty": "Keep empty rows",
         "no_dedupe": "Keep duplicate rows",
+        "video": "Video tools",
+        "video_audio": "Extract audio from a video",
+        "video_compress": "Compress a video",
+        "audio_format": "Audio format",
+        "video_format": "Video output format",
+        "crf": "Quality CRF, 18 sharper to 28 smaller",
+        "resolution": "Resolution cap",
     },
 }
+
+
+MAX_VIDEO_FILES = 10
+
+
+class _Out:
+    def __init__(self, path: Path, filename: str):
+        self.path = path
+        self.filename = filename
 
 
 def _t(lang: str, text: str) -> str:
@@ -346,6 +372,116 @@ def cmd_csv_clean(args: argparse.Namespace) -> int:
         batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
+def _zip_named(pairs: list[tuple[Path, str]], dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    used: set[str] = set()
+    with zipfile.ZipFile(dest, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path, name in pairs:
+            entry = safe_entry_name(name)
+            if entry in used:
+                stem, suffix = Path(entry).stem, Path(entry).suffix
+                index = 2
+                while f"{stem}_{index}{suffix}" in used:
+                    index += 1
+                entry = f"{stem}_{index}{suffix}"
+            used.add(entry)
+            archive.write(path, entry)
+            path.unlink(missing_ok=True)
+
+
+def _run_video_paths(lang: str, paths: list[Path], handle, output: str | None, single_name: str, default_zip: str) -> int:
+    if len(paths) > MAX_VIDEO_FILES:
+        raise ValueError(f"一次最多处理 {MAX_VIDEO_FILES} 个文件")
+
+    def one(path: Path) -> _Out:
+        if path.stat().st_size > MAX_VIDEO_BYTES:
+            raise ValueError(f"{path.name} 过大，单文件最大 500MB")
+        return handle(path.read_bytes(), path.name)
+
+    if len(paths) == 1:
+        result = one(paths[0])
+        dest = resolve_dest(output, single_name=result.filename, default_zip=default_zip, count=1)
+        write_path(result.path, dest)
+        return report_written(lang, dest)
+
+    if output and Path(output).is_dir():
+        dest_dir = Path(output)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+        ok = 0
+        fail = 0
+        used: set[str] = set()
+        for path in paths:
+            try:
+                result = one(path)
+                out_name = Path(result.filename).name
+                if out_name in used:
+                    stem, suffix = Path(out_name).stem, Path(out_name).suffix
+                    index = 2
+                    while f"{stem}_{index}{suffix}" in used:
+                        index += 1
+                    out_name = f"{stem}_{index}{suffix}"
+                used.add(out_name)
+                write_path(result.path, dest_dir / out_name)
+                ok += 1
+            except Exception as exc:
+                fail += 1
+                print(f"{path.name}\t{exc}", file=sys.stderr)
+        if not ok:
+            raise ValueError("全部文件处理失败。")
+        return report_written(lang, dest_dir, _t(lang, f"成功 {ok} · 失败 {fail}"))
+
+    dest = resolve_dest(output, single_name=single_name, default_zip=default_zip, count=len(paths))
+    pairs: list[tuple[Path, str]] = []
+    fail = 0
+    for path in paths:
+        try:
+            result = one(path)
+            pairs.append((result.path, result.filename))
+        except Exception as exc:
+            fail += 1
+            print(f"{path.name}\t{exc}", file=sys.stderr)
+    if not pairs:
+        raise ValueError("全部文件处理失败。")
+    _zip_named(pairs, dest)
+    return report_written(lang, dest, _t(lang, f"成功 {len(pairs)} · 失败 {fail}"))
+
+
+def cmd_video_audio(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        paths = collect_paths(args.inputs, lang)
+
+        def handle(data: bytes, name: str) -> _Out:
+            path, info = convert_uploaded_file(data, name, args.format)
+            return _Out(path, info["filename"])
+
+        return _run_video_paths(lang, paths, handle, args.output, "audio.mp3", "extracted-audio.zip")
+    except Exception as exc:
+        return _die(lang, str(exc))
+
+
+def cmd_video_compress(args: argparse.Namespace) -> int:
+    lang = args.lang
+    try:
+        if args.crf < 18 or args.crf > 28:
+            return _die(lang, "CRF 请填写 18～28 的整数")
+        paths = collect_paths(args.inputs, lang)
+
+        def handle(data: bytes, name: str) -> _Out:
+            path, info = compress_video_file(
+                data,
+                name,
+                output_format=args.format,
+                crf=args.crf,
+                resolution=args.resolution,
+            )
+            return _Out(path, info["filename"])
+
+        return _run_video_paths(lang, paths, handle, args.output, "compressed.mp4", "compressed-videos.zip")
     except Exception as exc:
         return _die(lang, str(exc))
 
@@ -637,6 +773,22 @@ def build_parser(lang: str) -> argparse.ArgumentParser:
     clean.add_argument("--no-drop-empty", action="store_true", help=text["no_drop_empty"])
     clean.add_argument("--no-dedupe", action="store_true", help=text["no_dedupe"])
     clean.set_defaults(func=cmd_csv_clean)
+
+    video = groups.add_parser("video", help=text["video"], parents=[lang_parent])
+    video_cmds = video.add_subparsers(dest="cmd", required=True)
+    audio = video_cmds.add_parser("audio", help=text["video_audio"], parents=[lang_parent])
+    audio.add_argument("inputs", nargs="+", help=text["inputs"])
+    audio.add_argument("-o", "--output", help=text["output"])
+    audio.add_argument("--format", default="mp3", choices=sorted(AUDIO_FORMATS), help=text["audio_format"])
+    audio.set_defaults(func=cmd_video_audio)
+
+    vcompress = video_cmds.add_parser("compress", help=text["video_compress"], parents=[lang_parent])
+    vcompress.add_argument("inputs", nargs="+", help=text["inputs"])
+    vcompress.add_argument("-o", "--output", help=text["output"])
+    vcompress.add_argument("--format", default="mp4", choices=sorted(VIDEO_OUTPUT), help=text["video_format"])
+    vcompress.add_argument("--crf", type=int, default=23, help=text["crf"])
+    vcompress.add_argument("--resolution", default="original", choices=list(RESOLUTIONS), help=text["resolution"])
+    vcompress.set_defaults(func=cmd_video_compress)
 
     return parser
 

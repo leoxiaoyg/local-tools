@@ -61,7 +61,7 @@ uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ## 命令行
 
-与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、EXIF、PDF 合并压缩拆分与加密解密、CSV 清洗。视频与 Office 转换暂不提供。
+与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、视频转音频 / 压缩、EXIF、PDF 合并压缩拆分与加密解密、CSV 清洗。Office 转换暂不提供。
 
 ```bash
 python -m app --help
@@ -76,6 +76,8 @@ python -m app pdf split doc.pdf --mode range --pages 1-3,5
 python -m app pdf encrypt invoice.pdf --user-pw secret -o locked.pdf
 python -m app pdf decrypt locked.pdf --password secret -o opened.pdf
 python -m app csv clean data.csv --keep sku,name
+python -m app video audio clip.mp4 --format mp3
+python -m app video compress clip.mp4 --crf 28 --resolution 720
 ```
 
 `--lang zh|en` 控制提示语言，也可设环境变量 `LT_LANG`。多文件默认打成 zip；`-o` 指向已有目录时逐个写出。
@@ -118,7 +120,7 @@ local-tools/
 
 | 类型 | 上限 |
 |------|------|
-| 视频 | 500 MB |
+| 视频 | 单文件 500 MB；命令行一批最多 10 个 |
 | 图片 | 单文件 50 MB；批量合计 200 MB / 最多 50 张 |
 | CSV / Excel | 单文件 20 MB；清洗批量合计 200 MB / 最多 50 个 |
 | 文档转换 | 80 MB |

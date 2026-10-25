@@ -6,12 +6,13 @@
 
 ## 1. 能做什么 / 不能做什么
 
-| 做 | 不做（首刀） |
+| 做 | 不做 |
 |---|---|
-| 图片压缩、格式/尺寸转换、文字水印 | 视频转音频、视频压缩 |
-| 查看 / 清除 EXIF | Word / PPT 等 Office 转换 |
-| PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 便携 exe |
-| CSV 去空行、去重、留列 | 透视、公式、Excel 清洗 |
+| 图片压缩、格式/尺寸转换、文字水印 | Word / PPT 等 Office 转换 |
+| 视频转音频、视频压缩 | 便携 exe |
+| 查看 / 清除 EXIF | 透视、公式、Excel 清洗 |
+| PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 铺满水印、贴图 |
+| CSV 去空行、去重、留列 | 按单列模糊去重 |
 
 和网页是同一套处理函数。网页能压成什么样，命令行就是什么样。
 
@@ -139,6 +140,24 @@ python -m app csv clean data.csv --no-drop-empty --no-dedupe
 
 第一行当表头。输出 UTF-8 BOM（`utf-8-sig`），方便 Excel 打开。不做透视或公式。
 
+### 4.6 视频
+
+```bash
+python -m app video audio clip.mp4
+python -m app video audio clip.mp4 --format wav -o clip.wav
+python -m app video compress clip.mp4 --crf 28 --resolution 720 -o small.mp4
+python -m app video compress a.mp4 b.mp4 --format mp4 -o compressed-videos.zip
+```
+
+| 参数 | 含义 | 默认 |
+|---|---|---|
+| `audio --format` | `mp3` / `wav` / `aac` / `m4a` / `ogg` / `flac` | `mp3` |
+| `compress --format` | `mp4` / `webm` | `mp4` |
+| `--crf` | 18 更清晰，28 更小。超出这个范围会拒绝 | `23` |
+| `--resolution` | `original` / `1080` / `720` / `480` | `original` |
+
+和网页是同一套函数。多个视频逐个处理后再打包，不会一次全部读进内存。Office 转换仍只用网页。
+
 ## 5. 上限（与网页相同）
 
 | 类型 | 上限 |
@@ -147,12 +166,13 @@ python -m app csv clean data.csv --no-drop-empty --no-dedupe
 | PDF | 单文件 80MB；合并最多 30 个、合计 200MB |
 | 按页拆分 | 最多 400 页 |
 | CSV 清洗 | 单文件 20MB / 最多 20 万行；一批最多 50 个、合计 200MB |
+| 视频 | 单文件 500MB；一批最多 10 个，逐个处理 |
 
 ## 6. 和非目标相关的常见误解
 
 - 这不是 HTTP 客户端。不要对 `127.0.0.1` 发请求来当 CLI。
 - 通配符在 PowerShell / bash 里可能先被 shell 展开；`cmd.exe` 里由程序自己匹配 `*`。
-- 视频和 Office 请继续用网页，或等后续里程碑。
+- Office 转换请继续用网页。视频转音频和压缩可以用上面的命令。
 
 ## 7. 文档索引
 

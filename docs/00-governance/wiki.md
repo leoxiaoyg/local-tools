@@ -11,7 +11,8 @@
 | 用 Web | `README.md` | `01-product/pdf.md`、`01-product/watermark.md`、`01-product/csv-clean.md`、各工具页 | CLI 说明书 |
 | 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 铺满/贴图（未做） |
 | 改 CSV 清洗 | `01-product/csv-clean.md` | `04-testing/csv-clean.md` | 透视/公式（未做） |
-| 用命令行 | `01-product/cli.md` | `03-engineering/ADR-002-cli.md` | 视频/Office 文档（未做） |
+| 用命令行 | `01-product/cli.md` | `03-engineering/ADR-002-cli.md` | Office 文档（未做） |
+| 改视频 CLI | `01-product/cli.md` 第 4.6 节 | `04-testing/video-cli.md` | Office / exe |
 | 改 PDF 加密 | `ADR-003-pdf-encrypt.md` + `01-product/pdf.md` | `04-testing/pdf-encrypt.md` | 视频/Office |
 | 改批量 / zip | `03-engineering/ADR-001-batch-job.md` | `app/batch.py` | GTM |
 | 改 CLI | `ADR-002-cli.md` + `01-product/cli.md` | `04-testing/cli-smoke.md` | 前端样式 |
