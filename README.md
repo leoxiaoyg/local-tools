@@ -57,6 +57,25 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
+## 命令行
+
+与 Web 共用同一套处理函数，不走 HTTP。首刀覆盖图片压缩 / 转换、EXIF、PDF 合并压缩拆分。视频与 Office 转换暂不提供。
+
+```bash
+python -m app --help
+python -m app --lang en image compress photo.jpg -o small.jpg
+python -m app image convert a.png b.png --format webp -o converted.zip
+python -m app exif inspect photo.jpg
+python -m app exif strip *.jpg -o clean.zip
+python -m app pdf merge a.pdf b.pdf -o merged.pdf
+python -m app pdf compress invoice.pdf --preset strong
+python -m app pdf split doc.pdf --mode range --pages 1-3,5
+```
+
+`--lang zh|en` 控制提示语言，也可设环境变量 `LT_LANG`。多文件默认打成 zip；`-o` 指向已有目录时逐个写出。
+
+完整命令、参数与上限见 [docs/01-product/cli.md](docs/01-product/cli.md)。文档入口：[docs/00-governance/wiki.md](docs/00-governance/wiki.md)。
+
 ## 依赖安装说明
 
 `run.bat` / `run.sh` 在执行 `pip install` 时会临时使用代理 `http://127.0.0.1:7897`（便于访问 PyPI），安装完成后自动清除，不影响服务运行。若你不需要代理，可自行修改脚本中的 `HTTP_PROXY` / `HTTPS_PROXY`。
@@ -76,8 +95,11 @@ local-tools/
 │   ├── batch.py          # 批量处理 + zip
 │   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分
 │   ├── exif_tools.py     # EXIF 查看 / 清除
-│   └── i18n.py           # Web 错误与标签的 zh / en
+│   ├── i18n.py           # Web / CLI 的 zh / en
+│   ├── cli.py            # 命令行入口（python -m app）
+│   └── __main__.py
 ├── static/               # 前端页面与静态资源（含 locales.js / i18n.js）
+├── docs/                 # Wiki、说明书、ADR、测试清单（入口：docs/00-governance/wiki.md）
 ├── requirements.txt
 ├── run.bat               # Windows 启动脚本
 └── run.sh                # Linux 启动脚本

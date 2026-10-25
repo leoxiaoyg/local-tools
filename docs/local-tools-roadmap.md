@@ -88,10 +88,10 @@
 2. `main.py` 加路由（带大小限制 + try/except → `FileResponse` + `BackgroundTask(_cleanup)`）
 3. 新增 `static/xxx.html` + `static/xxx.js`（vanilla JS，沿用 `styles.css`）
 4. `static/index.html` 加 `tool-card`（卡片过多时先分组）
-5. 更新 `README.md` 功能表 + 项目结构
-6. QA 跑 P0 用例后再请 GM 验收
+5. **同一次改动**更新必要文档（README、说明书、路线图状态、测试 P0；有分叉则 ADR）。总责 **PM**
+6. QA 勾 P0 **且**核文档后再请 GM 验收
 
-**分工：** BE 做 1–2；FE 做 3–4；PM/文档协作 5；QA 做 6。
+**分工：** BE 做 1–2 及后端相关文档草案；FE 做 3–4 及页面相关文档草案；PM 收口第 5；QA 做 6。未齐文档 = 模块未交付。见 `docs/00-governance/team-charter.md` 第 6 节。
 
 ---
 
@@ -105,7 +105,7 @@
 | 图片 EXIF 清除 | ✅ 已落地 | `/exif.html` · 免费，支持批量 zip |
 | 首页分组 + 视觉统一 | ✅ 已落地 | 2026-10-24 · 跟随系统暗色 |
 | 国际化（i18n） | ✅ 已落地 | **MVP 第 4** · Web zh/en · 本地记忆 · 接口错误随 Accept-Language |
-| CLI 模式 | ⬜ 待做 | **MVP 第 5** · i18n 之后 |
+| CLI 模式 | ✅ 首刀已落地 | **MVP 第 5** · `python -m app` · 图片 / EXIF / PDF；视频与 Office 未做 |
 | CSV 清洗 / 基础水印 | ⬜ 待选 | **MVP 第 6** 二选一 |
 | 便携 exe | ⏸ 推迟 | 先 CLI |
 | 二三梯队 / rembg | 📋 规划中 | 按需求滚动，不进默认核心 |

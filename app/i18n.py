@@ -1,7 +1,9 @@
-"""Web 错误与接口标签的 zh / en。CLI 语言等 CLI 里程碑再接。"""
+"""Web / CLI 错误与标签的 zh / en。不上云翻译。"""
 
 from __future__ import annotations
 
+import locale
+import os
 import re
 from urllib.parse import unquote
 
@@ -85,6 +87,9 @@ EXACT_EN = {
     "已优化 WebP 编码": "Optimized WebP encoding",
     "无法在保持 PNG 格式下达到目标体积，已输出优化后的 PNG": "Could not hit the size cap as PNG. Saved an optimized PNG",
     "无法在保持 PNG 格式下达到目标体积，已保持原文件": "Could not hit the size cap as PNG. Kept the original",
+    "含 GPS 位置": "Has GPS",
+    "未发现拍摄信息": "No shooting info found",
+    "全部文件处理失败。": "All files failed.",
 }
 
 PATTERNS = (
@@ -116,11 +121,33 @@ PATTERNS = (
     (re.compile(r"^音频提取失败: (.+)$"), "Audio extraction failed: {0}"),
     (re.compile(r"^全部文件处理失败。(.+)$"), "All files failed. {0}"),
     (re.compile(r"^未找到可用的 Office 转换引擎$"), "No Office conversion engine is available"),
+    (re.compile(r"^找不到文件: (.+)$"), "File not found: {0}"),
+    (re.compile(r"^不是文件: (.+)$"), "Not a file: {0}"),
+    (re.compile(r"^已写入 (.+)$"), "Wrote {0}"),
+    (re.compile(r"^成功 (\d+) · 失败 (\d+)$"), "{0} ok · {1} failed"),
+    (re.compile(r"^输出尺寸：(\d+) × (\d+) px$"), "Output size: {0} × {1} px"),
+    (re.compile(r"^(\d+) 项敏感信息$"), "{0} sensitive fields"),
+    (re.compile(r"^已合并 (\d+) 个文件，共 (\d+) 页$"), "Merged {0} files, {1} pages"),
+    (re.compile(r"^已提取 (\d+) 页$"), "Extracted {0} pages"),
+    (re.compile(r"^已拆成 (\d+) 个单页 PDF$"), "Split into {0} single-page PDFs"),
+    (re.compile(r"^提取页码范围时请使用 --pages，例如 1-3,5$"), "Range mode needs --pages, e.g. 1-3,5"),
     (re.compile(r"^已转为 WebP 高画质（(\d+)），视觉差异极小$"), "Saved as high-quality WebP ({0}) with little visual change"),
     (re.compile(r"^以 WebP 高画质（(\d+)）重新编码$"), "Re-encoded as high-quality WebP ({0})"),
     (re.compile(r"^以 JPEG 高画质（(\d+)）重新编码，视觉差异极小$"), "Re-encoded as high-quality JPEG ({0}) with little visual change"),
     (re.compile(r"^JPEG 优化有限，已转为 WebP 高画质（(\d+)）$"), "JPEG gains were limited. Saved as high-quality WebP ({0})"),
 )
+
+
+def detect_cli_lang(explicit: str | None = None) -> str:
+    if explicit in SUPPORTED:
+        return explicit
+    env = (os.environ.get("LT_LANG") or "").strip().lower()
+    if env.startswith("zh"):
+        return "zh"
+    if env.startswith("en"):
+        return "en"
+    tag = (locale.getdefaultlocale()[0] or "").lower()
+    return "zh" if tag.startswith("zh") else "en" if tag.startswith("en") else "zh"
 
 
 def parse_lang(header: str | None) -> str:

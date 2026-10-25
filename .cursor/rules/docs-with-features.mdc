@@ -1,0 +1,10 @@
+---
+description: 本仓覆盖：功能与文档同发（全局 skill docs-with-features）
+alwaysApply: true
+---
+
+# 文档与功能同发（本仓）
+
+遵守个人技能 `docs-with-features`。本仓细则：`docs/00-governance/team-charter.md` 第 6 节。总责 PM。
+
+员工 Agent 的新约定写进 `.cursor/skills/lt-*` 或个人 `~/.cursor/skills/`，见 `precipitate-role-skill`。

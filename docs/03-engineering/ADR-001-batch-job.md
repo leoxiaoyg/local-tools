@@ -27,7 +27,7 @@ run_batch(
 2. Web：`POST /api/batch/{tool_id}` 或各工具增加 `files: list[UploadFile]` + `batch=1`；优先**按工具扩展多文件字段**，共享 `run_batch`，避免过早做万能调度器。
 3. 串行调用 handler；单条失败写入 `errors.txt`（或 JSON）一并打进 zip；整批全失败则 400/500 不返回空 zip。
 4. zip 条目名 = `Path(original).name` 消毒；同名自动 `stem_2.ext`。
-5. CLI 后续直接调同一 `handler` + `run_batch`，不经 HTTP。
+5. CLI 直接调同一 `handler` + `run_batch`，不经 HTTP（已落地，见 ADR-002）。
 
 ## Consequences
 
