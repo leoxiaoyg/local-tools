@@ -16,6 +16,7 @@
 | 改 PDF 加密 | `ADR-003-pdf-encrypt.md` + `01-product/pdf.md` | `04-testing/pdf-encrypt.md` | 视频/Office |
 | 改批量 / zip | `03-engineering/ADR-001-batch-job.md` | `app/batch.py` | GTM |
 | 改 CLI | `ADR-002-cli.md` + `01-product/cli.md` | `04-testing/cli-smoke.md` | 前端样式 |
+| 问 exe 做不做 | `03-engineering/ADR-004-portable-exe.md` | 路线图状态表 | 打包脚本（未做） |
 | 验收里程碑 | 对应测试册 | wrap / roadmap 状态表 | 未进范围的二三梯队 |
 
 ## 文档树

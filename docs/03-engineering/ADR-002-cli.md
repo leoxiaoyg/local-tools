@@ -28,7 +28,7 @@ Web 已能批量处理图片、EXIF、PDF。脚本用户和跨境卖家批量场
 
 - 文档 Office 转换（Word / PPT）
 - PDF 加密（2026-10-25 已按本 ADR 接入，细节见 ADR-003）
-- 便携 exe
+- 便携 exe（评估见 ADR-004，结论仍不打包）
 - 守护进程、监听目录、云同步
 
 ## Consequences
