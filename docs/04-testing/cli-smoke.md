@@ -25,6 +25,7 @@
 | 19 | `video compress a.mp4 --crf 28 --resolution 480 -o out.mp4` | 同上 | 产出 mp4 | |
 | 20 | `video audio nope.txt`（`--lang en`） | 非视频 | 退出非 0，stderr 含 `Unsupported video format` | |
 | 21 | `video compress a.mp4 --crf 40` | 短片 | 退出非 0 | |
+| 22 | `image compress a.jpg bad.txt -o out.zip`（`--lang en`） | 一张图 + 一个非图片 | zip 内 `errors.txt` 含 `# Failed items`，且失败原因是英文 | |
 
 可复跑脚本（项目根目录）：`python tests/cli_smoke.py`，通过时打印 `CLI_SMOKE_OK`。
 

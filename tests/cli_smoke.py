@@ -229,6 +229,16 @@ def main() -> int:
         if "CRF must be an integer from 18 to 28" not in (crf.stderr + crf.stdout):
             raise AssertionError(f"21 expected crf error, got {crf.stderr!r}")
 
+        bad_image = work / "bad.txt"
+        bad_image.write_text("not an image", encoding="utf-8")
+        mixed = work / "mixed.zip"
+        r = run(["image", "compress", str(img1), str(bad_image), "-o", str(mixed)], lang="en")
+        expect_ok("22 errors.txt lang", r)
+        with zipfile.ZipFile(mixed) as archive:
+            note = archive.read("errors.txt").decode("utf-8")
+        if "# Failed items" not in note or "Unsupported image format" not in note:
+            raise AssertionError(f"22 expected english errors.txt, got {note!r}")
+
         print("CLI_SMOKE_OK")
         return 0
     finally:

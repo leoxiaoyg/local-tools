@@ -260,7 +260,7 @@ def cmd_image_compress(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="compressed.jpg", default_zip="compressed-images.zip", count=len(files))
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         extra = _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}")
         return report_written(lang, dest, extra)
@@ -301,7 +301,7 @@ def cmd_image_convert(args: argparse.Namespace) -> int:
             ok, fail = write_batch_dir(files, handle, Path(args.output))
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -336,7 +336,7 @@ def cmd_image_watermark(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="watermarked.jpg", default_zip="watermarked-images.zip", count=len(files))
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -369,7 +369,7 @@ def cmd_csv_clean(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="clean.csv", default_zip="cleaned-csv.zip", count=len(files))
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -534,7 +534,7 @@ def cmd_exif_strip(args: argparse.Namespace) -> int:
             ok, fail = write_batch_dir(files, handle, Path(args.output))
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -577,7 +577,7 @@ def cmd_pdf_compress(args: argparse.Namespace) -> int:
             ok, fail = write_batch_dir(files, handle, Path(args.output))
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -642,7 +642,7 @@ def cmd_pdf_encrypt(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="locked.pdf", default_zip="locked-pdfs.zip", count=len(files))
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:
@@ -671,7 +671,7 @@ def cmd_pdf_decrypt(args: argparse.Namespace) -> int:
             return report_written(lang, Path(args.output), _t(lang, f"成功 {ok} · 失败 {fail}"))
 
         dest = resolve_dest(args.output, single_name="unlocked.pdf", default_zip="unlocked-pdfs.zip", count=len(files))
-        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name)
+        batch = run_batch(files, lambda data, name: _handler_file(handle, data, name), zip_name=dest.name, lang=lang)
         write_path(batch.zip_path, dest)
         return report_written(lang, dest, _t(lang, f"成功 {len(batch.ok)} · 失败 {len(batch.errors)}"))
     except Exception as exc:

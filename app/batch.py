@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
+from app.i18n import translate_text
+
 MAX_FILES_DEFAULT = 50
 MAX_TOTAL_BYTES_DEFAULT = 200 * 1024 * 1024
 
@@ -89,6 +91,7 @@ def run_batch(
     max_total_bytes: int = MAX_TOTAL_BYTES_DEFAULT,
     zip_name: str = "results.zip",
     fail_mode: str = "continue",
+    lang: str = "zh",
 ) -> BatchResult:
     if not files:
         raise ValueError("请选择文件")
@@ -140,8 +143,10 @@ def run_batch(
             for entry_name, content in entries:
                 archive.writestr(entry_name, content)
             if errors:
-                lines = ["# 失败清单", ""]
-                lines.extend(f"{item.name}\t{item.detail}" for item in errors)
+                lines = [translate_text("# 失败清单", lang), ""]
+                lines.extend(
+                    f"{item.name}\t{translate_text(item.detail, lang)}" for item in errors
+                )
                 archive.writestr("errors.txt", "\n".join(lines) + "\n")
     except Exception:
         zip_path.unlink(missing_ok=True)

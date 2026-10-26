@@ -5,7 +5,10 @@ from __future__ import annotations
 import locale
 import os
 import re
+from contextvars import ContextVar
 from urllib.parse import unquote
+
+current_lang: ContextVar[str] = ContextVar("lt_lang", default="zh")
 
 SUPPORTED = ("zh", "en")
 
@@ -103,6 +106,7 @@ EXACT_EN = {
     "含 GPS 位置": "Has GPS",
     "未发现拍摄信息": "No shooting info found",
     "全部文件处理失败。": "All files failed.",
+    "# 失败清单": "# Failed items",
 }
 
 PATTERNS = (

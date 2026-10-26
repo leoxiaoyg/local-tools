@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
 from urllib.parse import quote, unquote
 
-from app.i18n import localize_items, parse_lang, translate_text
+from app.i18n import current_lang, localize_items, parse_lang, translate_text
 
 from app.batch import run_batch
 from app.converter import AUDIO_FORMATS, MAX_VIDEO_BYTES, convert_uploaded_file
@@ -44,6 +44,14 @@ MESSAGE_HEADERS = ("x-exif-message", "x-pdf-message", "x-compress-message", "x-w
 async def localize_http(request: Request, call_next):
     lang = parse_lang(request.headers.get("accept-language"))
     request.state.lang = lang
+    token = current_lang.set(lang)
+    try:
+        return await _localize_response(request, call_next, lang)
+    finally:
+        current_lang.reset(token)
+
+
+async def _localize_response(request: Request, call_next, lang: str):
     response = await call_next(request)
 
     for header in MESSAGE_HEADERS:
@@ -895,7 +903,7 @@ def _pdf_file_response(result) -> FileResponse:
 
 def _batch_zip_response(payload, handler, zip_name: str) -> FileResponse:
     try:
-        batch = run_batch(payload, handler, zip_name=zip_name)
+        batch = run_batch(payload, handler, zip_name=zip_name, lang=current_lang.get())
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except RuntimeError as exc:

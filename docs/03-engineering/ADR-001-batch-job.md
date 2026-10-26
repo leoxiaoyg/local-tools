@@ -35,6 +35,10 @@ run_batch(
 - 内存仍受「全量读入」限制；大视频批量需另议流式/落盘（本 ADR 不覆盖视频 500MB×N）。
 - FE 需统一批量 UI 范式（见 UX AC）。
 
+## 修订
+
+2026-10-26：部分成功时，zip 内 `errors.txt` 的标题和失败原因跟随调用语言。Web 用 `Accept-Language`，CLI 用 `--lang` / `LT_LANG`。条目仍是「文件名 + 制表符 + 原因」。整批全失败时不产生 zip，行为不变。
+
 ## Rollback
 
 删除 `batch` 模块与相关路由；单文件路径保持不变。
