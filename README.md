@@ -11,7 +11,7 @@
 | 图片压缩 | `/image.html` | 尽量保持画质的前提下缩小体积，可指定上限；支持批量 zip |
 | 图片转换 | `/image-convert.html` | 格式转换（JPG / PNG / WebP）、等比缩放与裁剪；支持批量 zip |
 | EXIF 清除 | `/exif.html` | 查看并去掉拍摄时间、机型、GPS；免费 |
-| 文字水印 | `/watermark.html` | 店名/说明文字；位置 + 透明度；支持批量 zip |
+| 文字水印 | `/watermark.html` | 店名/说明文字；位置或斜向平铺 + 透明度；支持批量 zip |
 | JSON 格式化 | `/json.html` | 格式化、压缩、校验（纯浏览器，不上传服务器） |
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
 | CSV ↔ Excel | `/csv-excel.html` | CSV 与 `.xlsx` 互转 |

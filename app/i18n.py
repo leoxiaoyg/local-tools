@@ -133,6 +133,7 @@ PATTERNS = (
     (re.compile(r"^不支持的权限项: (.+)$"), "Unsupported permission: {0}"),
     (re.compile(r"^不支持的水印位置: (.+)$"), "Unsupported watermark position: {0}"),
     (re.compile(r"^水印文字最多 (\d+) 个字$"), "Watermark text can be at most {0} characters"),
+    (re.compile(r"^已加水印（平铺，透明度 (\d+)%）$"), "Watermark added (tiled, opacity {0}%)"),
     (re.compile(r"^已加水印（(.+)，透明度 (\d+)%）$"), "Watermark added ({0}, opacity {1}%)"),
     (re.compile(r"^(.+) 没有有效页面$"), "{0} has no valid pages"),
     (re.compile(r"^页码 (.+) 超出范围（共 (\d+) 页）$"), "Page {0} is out of range ({1} pages)"),

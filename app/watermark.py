@@ -1,4 +1,4 @@
-"""基础文字水印。Pillow，不铺满、不贴图。"""
+"""文字水印。Pillow，支持单点位置与斜向平铺；不贴图。"""
 
 from __future__ import annotations
 
@@ -24,6 +24,7 @@ MAX_TEXT_CHARS = 40
 POSITIONS = ("bottom-right", "bottom-left", "top-right", "top-left", "center")
 DEFAULT_POSITION = "bottom-right"
 DEFAULT_OPACITY = 40
+DEFAULT_TILE = False
 
 _FONT_CANDIDATES = (
     Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / "msyh.ttc",
@@ -56,6 +57,7 @@ def apply_text_watermark(
     text: str,
     position: str = DEFAULT_POSITION,
     opacity: int = DEFAULT_OPACITY,
+    tile: bool = DEFAULT_TILE,
 ) -> WatermarkResult:
     if not content:
         raise ValueError("文件为空")
@@ -83,7 +85,7 @@ def apply_text_watermark(
         if getattr(img, "n_frames", 1) > 1:
             raise ValueError("暂不支持动图，请使用静态图片")
 
-        marked = _draw_text(img, label, position, opacity_pct)
+        marked = _draw_text(img, label, position, opacity_pct, tile)
         input_format = _detect_input_format(filename)
         output_format = _resolve_output_format(input_format, "auto")
         prepared = _prepare_for_format(marked, output_format)
@@ -105,13 +107,31 @@ def apply_text_watermark(
         mime=OUTPUT_FORMATS[output_format]["mime"],
         original_size=len(content),
         output_size=path.stat().st_size,
-        message=f"已加水印（{position}，透明度 {opacity_pct}%）",
+        message=_message(position, opacity_pct, tile),
         width=prepared.width,
         height=prepared.height,
     )
 
 
-def _draw_text(img: Image.Image, text: str, position: str, opacity_pct: int) -> Image.Image:
+def _message(position: str, opacity_pct: int, tile: bool) -> str:
+    if tile:
+        return f"已加水印（平铺，透明度 {opacity_pct}%）"
+    return f"已加水印（{position}，透明度 {opacity_pct}%）"
+
+
+def _draw_text(
+    img: Image.Image,
+    text: str,
+    position: str,
+    opacity_pct: int,
+    tile: bool,
+) -> Image.Image:
+    if tile:
+        return _draw_tiled_text(img, text, opacity_pct)
+    return _draw_single_text(img, text, position, opacity_pct)
+
+
+def _draw_single_text(img: Image.Image, text: str, position: str, opacity_pct: int) -> Image.Image:
     base = img.convert("RGBA")
     overlay = Image.new("RGBA", base.size, (0, 0, 0, 0))
     draw = ImageDraw.Draw(overlay)
@@ -134,6 +154,54 @@ def _draw_text(img: Image.Image, text: str, position: str, opacity_pct: int) -> 
         stroke_width=max(1, font_size // 18),
         stroke_fill=(20, 20, 20, min(255, alpha + 40)),
     )
+    return Image.alpha_composite(base, overlay)
+
+
+def _draw_tiled_text(img: Image.Image, text: str, opacity_pct: int) -> Image.Image:
+    base = img.convert("RGBA")
+    width, height = base.size
+    short = min(width, height)
+    alpha = int(255 * opacity_pct / 100)
+    font_size = max(14, min(42, int(short * 0.04)))
+    if text:
+        font_size = min(font_size, max(14, width // max(8, len(text) * 2)))
+    font = _load_font(font_size, text)
+    stroke = max(1, font_size // 18)
+
+    probe = Image.new("RGBA", (1, 1), (0, 0, 0, 0))
+    bbox = ImageDraw.Draw(probe).textbbox((0, 0), text, font=font, stroke_width=stroke)
+    box_w = max(1, bbox[2] - bbox[0])
+    box_h = max(1, bbox[3] - bbox[1])
+    pad = max(8, font_size // 2)
+    stamp = Image.new("RGBA", (box_w + pad * 2, box_h + pad * 2), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(stamp)
+    draw.text(
+        (pad - bbox[0], pad - bbox[1]),
+        text,
+        font=font,
+        fill=(255, 255, 255, alpha),
+        stroke_width=stroke,
+        stroke_fill=(20, 20, 20, min(255, alpha + 40)),
+    )
+    resample = Image.Resampling.BICUBIC if hasattr(Image, "Resampling") else Image.BICUBIC
+    stamp = stamp.rotate(-28, expand=True, resample=resample)
+    stamp_w, stamp_h = stamp.size
+
+    step_x = min(max(int(stamp_w * 1.25), 1), max(1, width // 3))
+    step_y = min(max(int(stamp_h * 1.15), 1), max(1, height // 3))
+
+    layer = Image.new("RGBA", (width + stamp_w * 2, height + stamp_h * 2), (0, 0, 0, 0))
+    row = 0
+    y = 0
+    while y < layer.size[1]:
+        x = 0 if row % 2 == 0 else step_x // 2
+        while x < layer.size[0]:
+            layer.paste(stamp, (x, y), stamp)
+            x += step_x
+        y += step_y
+        row += 1
+
+    overlay = layer.crop((stamp_w, stamp_h, stamp_w + width, stamp_h + height))
     return Image.alpha_composite(base, overlay)
 
 

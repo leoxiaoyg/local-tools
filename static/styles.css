@@ -358,6 +358,20 @@ h1 {
   color: var(--accent);
 }
 
+.choice-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.choice-line input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .select {
   appearance: none;
   width: 100%;

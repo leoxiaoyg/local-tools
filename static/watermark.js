@@ -8,6 +8,8 @@ const fileQueue = document.getElementById("fileQueue");
 const previewRow = document.getElementById("previewRow");
 const imagePreview = document.getElementById("imagePreview");
 const textInput = document.getElementById("textInput");
+const tileInput = document.getElementById("tileInput");
+const positionField = document.getElementById("positionField");
 const positionSelect = document.getElementById("positionSelect");
 const opacityInput = document.getElementById("opacityInput");
 const submitBtn = document.getElementById("submitBtn");
@@ -89,6 +91,10 @@ function startLabel() {
     : t("wm.start");
 }
 
+function syncLayout() {
+  positionField.classList.toggle("hidden", tileInput.checked);
+}
+
 function addFiles(incoming) {
   const images = incoming.filter((file) => /\.(jpe?g|png|webp|bmp|tiff?)$/i.test(file.name));
   if (!images.length) return;
@@ -164,6 +170,7 @@ function paintResult() {
 }
 
 function refreshI18n() {
+  syncLayout();
   if (selectedFiles.length) {
     fileName.textContent = filesCaption(selectedFiles);
     renderQueue();
@@ -193,6 +200,7 @@ async function submit() {
 
   const formData = new FormData();
   formData.append("text", text);
+  formData.append("tile", tileInput.checked ? "true" : "false");
   formData.append("position", positionSelect.value);
   formData.append("opacity", opacityInput.value || "40");
   if (batch) selectedFiles.forEach((file) => formData.append("files", file));
@@ -273,5 +281,7 @@ fileQueue.addEventListener("click", (e) => {
   if (!btn) return;
   setFiles(selectedFiles.filter((_, index) => index !== Number(btn.dataset.removeIndex)));
 });
+tileInput.addEventListener("change", syncLayout);
 submitBtn.addEventListener("click", submit);
+syncLayout();
 document.addEventListener("lt-i18n", refreshI18n);

@@ -20,6 +20,7 @@
 | 14 | `pdf decrypt locked.pdf --password secret -o opened.pdf` | 上一步结果 | 产出文件；无需密码可开 | |
 | 15 | `pdf decrypt locked.pdf --password nope`（`--lang en`） | 上一步加密文件 | 退出非 0 | |
 | 16 | `image watermark a.jpg --text Shop -o wm.jpg` | 小 JPEG | 产出文件 | |
+| 16b | `image watermark a.jpg --text Shop --tile -o wm_tile.jpg` | 小 JPEG | 产出文件 | |
 | 17 | `csv clean a.csv --keep sku,name -o out.csv` | 含空行/重复行/多余列 | 产出文件；去掉空行与重复行，只留 sku、name | |
 | 18 | `video audio 片段.mp4 --format mp3 -o out.mp3` | 1 秒短片 | 产出 mp3 | |
 | 19 | `video compress a.mp4 --crf 28 --resolution 480 -o out.mp4` | 同上 | 产出 mp4 | |

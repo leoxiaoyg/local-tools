@@ -377,6 +377,7 @@ async def watermark_image_file(
     text: str = Form(...),
     position: str = Form("bottom-right"),
     opacity: str = Form("40"),
+    tile: str = Form("false"),
 ):
     payload = await _read_image_uploads([file])
     try:
@@ -386,6 +387,7 @@ async def watermark_image_file(
             text=text,
             position=position,
             opacity=_parse_opacity(opacity),
+            tile=_form_flag(tile),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -408,9 +410,11 @@ async def watermark_image_batch(
     text: str = Form(...),
     position: str = Form("bottom-right"),
     opacity: str = Form("40"),
+    tile: str = Form("false"),
 ):
     payload = await _read_image_uploads(files)
     opacity_pct = _parse_opacity(opacity)
+    tiled = _form_flag(tile)
 
     def handler(content: bytes, filename: str):
         result = apply_text_watermark(
@@ -419,6 +423,7 @@ async def watermark_image_batch(
             text=text,
             position=position,
             opacity=opacity_pct,
+            tile=tiled,
         )
         return result.path, result.filename
 

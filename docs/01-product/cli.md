@@ -11,7 +11,7 @@
 | 图片压缩、格式/尺寸转换、文字水印 | Word / PPT 等 Office 转换 |
 | 视频转音频、视频压缩 | 便携 exe |
 | 查看 / 清除 EXIF | 透视、公式、Excel 清洗 |
-| PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 铺满水印、贴图 |
+| PDF 合并、压缩、按页拆分或抽页、加密 / 解密 | 贴图 |
 | CSV 去空行、去重、留列 | 按单列模糊去重 |
 
 和网页是同一套处理函数。网页能压成什么样，命令行就是什么样。
@@ -78,6 +78,7 @@ python -m app image convert photo.jpg --format webp --width 800 --height 800 --r
 ```bash
 python -m app image watermark photo.jpg --text 店铺名
 python -m app image watermark a.jpg b.png --text Shop --position top-left --opacity 50 -o marked.zip
+python -m app image watermark photo.jpg --text 店铺名 --tile -o tiled.jpg
 ```
 
 | 参数 | 含义 | 默认 |
@@ -85,8 +86,9 @@ python -m app image watermark a.jpg b.png --text Shop --position top-left --opac
 | `--text` | 水印文字，最多 40 字 | 必填 |
 | `--position` | `bottom-right` / `bottom-left` / `top-right` / `top-left` / `center` | `bottom-right` |
 | `--opacity` | 10～100 | `40` |
+| `--tile` | 斜向重复铺满整张图；开启后忽略 `--position` | 关闭 |
 
-不做铺满、不贴图。中文需要本机中文字体。
+支持五个单点位置，也支持 `--tile` 斜向重复铺满；不做贴图。中文需要本机中文字体。
 
 ### 4.3 EXIF
 

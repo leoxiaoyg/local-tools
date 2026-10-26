@@ -193,6 +193,14 @@ def main() -> int:
         if not marked.exists() or marked.stat().st_size < 1:
             raise AssertionError("16 no watermarked file")
 
+        marked_tile = work / "a_wm_tile.jpg"
+        r = run(["image", "watermark", str(img1), "--text", "Shop", "--tile", "-o", str(marked_tile)])
+        expect_ok("16b watermark tile", r)
+        if not marked_tile.exists() or marked_tile.stat().st_size < 1:
+            raise AssertionError("16b no tiled watermark file")
+        if marked_tile.read_bytes() == img1.read_bytes():
+            raise AssertionError("16b tiled watermark did not change the file")
+
         raw_csv = work / "raw.csv"
         raw_csv.write_text("sku,name,extra\nA,Apple,x\n\nA,Apple,x\nB,Banana,y\n", encoding="utf-8")
         cleaned = work / "out.csv"

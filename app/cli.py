@@ -44,6 +44,7 @@ HELP = {
         "wm_text": "水印文字",
         "wm_position": "位置：右下 / 左下 / 右上 / 左上 / 居中",
         "wm_opacity": "透明度 10～100",
+        "wm_tile": "斜向重复铺满整张图（勾选后忽略位置）",
         "exif": "EXIF 工具",
         "inspect": "查看拍摄信息",
         "strip": "清除拍摄信息",
@@ -95,6 +96,7 @@ HELP = {
         "wm_text": "Watermark text",
         "wm_position": "Position: bottom-right / bottom-left / top-right / top-left / center",
         "wm_opacity": "Opacity 10-100",
+        "wm_tile": "Repeat diagonally across the whole image (ignores position)",
         "exif": "EXIF tools",
         "inspect": "Show shooting info",
         "strip": "Strip shooting info",
@@ -323,6 +325,7 @@ def cmd_image_watermark(args: argparse.Namespace) -> int:
                 text=args.text,
                 position=args.position,
                 opacity=args.opacity,
+                tile=args.tile,
             )
 
         if len(files) == 1:
@@ -711,6 +714,7 @@ def build_parser(lang: str) -> argparse.ArgumentParser:
     watermark.add_argument("--text", default="", help=text["wm_text"])
     watermark.add_argument("--position", choices=POSITIONS, default="bottom-right", help=text["wm_position"])
     watermark.add_argument("--opacity", type=int, default=40, help=text["wm_opacity"])
+    watermark.add_argument("--tile", action="store_true", help=text["wm_tile"])
     watermark.set_defaults(func=cmd_image_watermark)
 
     exif = groups.add_parser("exif", help=text["exif"], parents=[lang_parent])

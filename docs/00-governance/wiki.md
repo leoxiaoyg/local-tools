@@ -10,7 +10,7 @@
 | 问下一步做什么 | `docs/local-tools-roadmap.md` | `05-project/wrap-2026-10-24.md` | 实现细节 |
 | 用 Web | `README.md` | `01-product/pdf.md`、`01-product/watermark.md`、`01-product/csv-clean.md`、各工具页 | CLI 说明书 |
 | 问最近处理 / 本地历史 | `01-product/history.md` | `04-testing/history.md` | 后端实现 |
-| 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 铺满/贴图（未做） |
+| 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 图片贴图（未做） |
 | 改 CSV 清洗 | `01-product/csv-clean.md` | `04-testing/csv-clean.md` | 透视/公式（未做） |
 | 用命令行 | `01-product/cli.md` | `03-engineering/ADR-002-cli.md` | Office 文档（未做） |
 | 改视频 CLI | `01-product/cli.md` 第 4.6 节 | `04-testing/video-cli.md` | Office / exe |
