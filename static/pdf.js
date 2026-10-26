@@ -60,6 +60,14 @@ function filesCaption(files) {
   return t("common.andMoreFiles", { name: files[0].name, n: files.length });
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.doc.pdf",
+    href: "/pdf.html",
+    summary,
+  });
+}
+
 function addFiles(incoming) {
   const pdfs = incoming.filter((file) => file.name.toLowerCase().endsWith(".pdf"));
   if (!pdfs.length) return;
@@ -287,6 +295,11 @@ async function submit() {
       ok: res.headers.get("X-Batch-Ok") || "?",
     };
     statusBox.classList.add("hidden");
+    recordHistory(
+      failed != null
+        ? `${filesCaption(selectedFiles)} -> ${lastResult.name} (${t("common.batchResult", { ok: lastResult.ok, fail: lastResult.failed })})`
+        : `${filesCaption(selectedFiles)} -> ${lastResult.name}`
+    );
     paintResult();
   } catch (err) {
     showStatus(err.message || t("common.fail"), true);

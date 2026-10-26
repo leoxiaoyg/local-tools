@@ -29,6 +29,14 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.video.compress",
+    href: "/video-compress.html",
+    summary,
+  });
+}
+
 function setFile(file) {
   selectedFile = file;
   lastSizes = null;
@@ -102,6 +110,7 @@ async function submit() {
       paintSizes();
     }
     statusBox.classList.add("hidden");
+    recordHistory(`${selectedFile.name} -> ${outName}`);
     resultBox.classList.remove("hidden");
   } catch (e) {
     statusBox.classList.remove("hidden");

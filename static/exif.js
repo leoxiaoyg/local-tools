@@ -55,6 +55,14 @@ function filesCaption(files) {
   return t("common.andMoreImages", { name: files[0].name, n: files.length });
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.image.exif",
+    href: "/exif.html",
+    summary,
+  });
+}
+
 function startLabel() {
   return selectedFiles.length > 1
     ? t("exif.batchStart", { n: selectedFiles.length })
@@ -241,6 +249,11 @@ async function submit() {
           message: decodeURIComponent(res.headers.get("X-Exif-Message") || t("exif.doneFallback")),
         };
     statusBox.classList.add("hidden");
+    recordHistory(
+      batch
+        ? `${filesCaption(selectedFiles)} -> ${lastResult.name} (${t("common.batchResult", { ok: lastResult.ok, fail: lastResult.fail })})`
+        : `${selectedFiles[0].name} -> ${lastResult.name}`
+    );
     paintResult();
   } catch (err) {
     showStatus(err.message || t("common.fail"), true);

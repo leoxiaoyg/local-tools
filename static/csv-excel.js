@@ -12,6 +12,14 @@ function showStatus(msg, isError = false) {
   statusText.textContent = msg;
 }
 
+function recordHistory(toolKey, summary) {
+  window.ltHistory?.record({
+    toolKey,
+    href: "/csv-excel.html",
+    summary,
+  });
+}
+
 async function downloadFromResponse(res, fallbackName) {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -26,6 +34,7 @@ async function downloadFromResponse(res, fallbackName) {
   a.download = name;
   a.click();
   URL.revokeObjectURL(a.href);
+  return name;
 }
 
 function bindDropzone(zone, input, onFile) {
@@ -58,9 +67,10 @@ document.getElementById("btnCsvToExcel").addEventListener("click", async () => {
   formData.append("file", csvFile);
   try {
     showStatus(t("csv.working"));
-    await downloadFromResponse(await fetch("/api/csv/to-excel", { method: "POST", body: formData }), "output.xlsx");
+    const outName = await downloadFromResponse(await fetch("/api/csv/to-excel", { method: "POST", body: formData }), "output.xlsx");
     showStatus(t("csv.excelDone"));
     statusBox.classList.remove("error");
+    recordHistory("hub.text.csv", `${csvFile.name} -> ${outName}`);
   } catch (e) {
     showStatus(e.message, true);
   }
@@ -73,9 +83,10 @@ document.getElementById("btnExcelToCsv").addEventListener("click", async () => {
   formData.append("sheet", document.getElementById("sheetName").value.trim() || "0");
   try {
     showStatus(t("csv.working"));
-    await downloadFromResponse(await fetch("/api/excel/to-csv", { method: "POST", body: formData }), "output.csv");
+    const outName = await downloadFromResponse(await fetch("/api/excel/to-csv", { method: "POST", body: formData }), "output.csv");
     showStatus(t("csv.csvDone"));
     statusBox.classList.remove("error");
+    recordHistory("hub.text.csv", `${excelFile.name} -> ${outName}`);
   } catch (e) {
     showStatus(e.message, true);
   }

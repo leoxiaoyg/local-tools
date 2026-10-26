@@ -11,6 +11,14 @@ function showStatus(msg, isError = false) {
   statusText.textContent = msg;
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.text.json",
+    href: "/json.html",
+    summary,
+  });
+}
+
 function hideStatus() {
   lastStatus = null;
   statusBox.classList.add("hidden");
@@ -37,6 +45,7 @@ document.getElementById("btnFormat").addEventListener("click", () => {
     const obj = parseInput();
     outputArea.value = JSON.stringify(obj, null, 2);
     hideStatus();
+    recordHistory(t("history.json.format"));
   } catch (e) {
     outputArea.value = "";
     rememberError(e);
@@ -49,6 +58,7 @@ document.getElementById("btnMinify").addEventListener("click", () => {
     const obj = parseInput();
     outputArea.value = JSON.stringify(obj);
     hideStatus();
+    recordHistory(t("history.json.minify"));
   } catch (e) {
     outputArea.value = "";
     rememberError(e);
@@ -63,6 +73,7 @@ document.getElementById("btnValidate").addEventListener("click", () => {
     lastStatus = { kind: "ok" };
     showStatus(t("json.ok"));
     statusBox.classList.remove("error");
+    recordHistory(t("history.json.validate"));
   } catch (e) {
     outputArea.value = "";
     rememberError(e);

@@ -26,6 +26,14 @@ function formatBytes(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.video.audio",
+    href: "/video.html",
+    summary,
+  });
+}
+
 function setFile(file) {
   selectedFile = file;
   if (file) {
@@ -146,6 +154,7 @@ async function convert() {
     const blob = await res.blob();
     stopProgress();
     hideStatus();
+    recordHistory(`${selectedFile.name} -> ${outName}`);
     showResult(outName, blob);
   } catch (err) {
     stopProgress();

@@ -10,6 +10,14 @@ function showStatus(msg, isError = false) {
   statusText.textContent = msg;
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.text.b64",
+    href: "/base64.html",
+    summary,
+  });
+}
+
 document.querySelectorAll(".tab").forEach((tab) => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
@@ -84,6 +92,7 @@ document.getElementById("fileInput").addEventListener("change", async () => {
     const data = await res.json();
     document.getElementById("fileOutput").value = data.text;
     statusBox.classList.add("hidden");
+    recordHistory(`${file.name} -> Base64`);
   } catch (e) {
     showStatus(e.message, true);
   }
@@ -106,6 +115,7 @@ document.getElementById("btnDecodeFile").addEventListener("click", async () => {
     URL.revokeObjectURL(a.href);
     showStatus(t("b64.fileDone"));
     statusBox.classList.remove("error");
+    recordHistory(`Base64 -> ${formData.get("filename")}`);
   } catch (e) {
     showStatus(e.message, true);
   }

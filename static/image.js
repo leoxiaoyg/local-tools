@@ -49,6 +49,14 @@ function filesCaption(files) {
   return t("common.andMoreImages", { name: files[0].name, n: files.length });
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.image.compress",
+    href: "/image.html",
+    summary,
+  });
+}
+
 function startLabel() {
   return selectedFiles.length > 1
     ? t("image.batchStart", { n: selectedFiles.length })
@@ -294,6 +302,11 @@ async function compress() {
         message: decodeURIComponent(res.headers.get("X-Compress-Message") || ""),
       };
     }
+    recordHistory(
+      batch
+        ? `${filesCaption(selectedFiles)} -> ${lastResult.name} (${t("common.batchResult", { ok: lastResult.ok, fail: lastResult.fail })})`
+        : `${selectedFiles[0].name} -> ${lastResult.name}`
+    );
     paintResult();
   } catch (err) {
     showStatus(err.message || t("common.fail"), true);

@@ -72,6 +72,14 @@ function filesCaption(files) {
   return t("common.andMoreFiles", { name: files[0].name, n: files.length });
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.text.clean",
+    href: "/csv-clean.html",
+    summary,
+  });
+}
+
 function startLabel() {
   return selectedFiles.length > 1 ? t("clean.batchStart", { n: selectedFiles.length }) : t("clean.start");
 }
@@ -189,6 +197,11 @@ async function submit() {
           message: decodeURIComponent(res.headers.get("X-Csv-Message") || ""),
         };
     statusBox.classList.add("hidden");
+    recordHistory(
+      batch
+        ? `${filesCaption(selectedFiles)} -> ${lastResult.name} (${t("common.batchResult", { ok: lastResult.ok, fail: lastResult.fail })})`
+        : `${selectedFiles[0].name} -> ${lastResult.name}`
+    );
     paintResult();
   } catch (err) {
     statusBox.classList.add("error");

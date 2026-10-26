@@ -37,6 +37,14 @@ function filesCaption(files) {
   return t("common.andMoreFilesLong", { name: files[0].name, n: files.length });
 }
 
+function recordHistory(summary) {
+  window.ltHistory?.record({
+    toolKey: "hub.doc.convert",
+    href: "/doc-convert.html",
+    summary,
+  });
+}
+
 function setFiles(files) {
   selectedFiles = files;
   if (downloadUrl) {
@@ -153,6 +161,7 @@ async function submit() {
     downloadLink.download = outName;
     resultName.textContent = outName;
     statusBox.classList.add("hidden");
+    recordHistory(`${filesCaption(selectedFiles)} -> ${outName}`);
     resultBox.classList.remove("hidden");
   } catch (e) {
     statusBox.classList.add("error");
