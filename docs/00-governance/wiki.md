@@ -8,6 +8,7 @@
 |---|---|---|---|
 | 问编制 / 谁拍板 | `team-charter.md` | 本页 | ADR、测试 |
 | 问下一步做什么 | `docs/local-tools-roadmap.md` | `05-project/wrap-2026-10-24.md` | 实现细节 |
+| 问对外怎么说 / 收不收费 | `README.md` 首段 + 路线图第三节 | ADR-004（不承诺免安装） | 新工具清单 |
 | 用 Web | `README.md` | `01-product/pdf.md`、`01-product/watermark.md`、`01-product/csv-clean.md`、各工具页 | CLI 说明书 |
 | 问最近处理 / 本地历史 | `01-product/history.md` | `04-testing/history.md` | 后端实现 |
 | 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 图片贴图（未做） |
@@ -19,6 +20,7 @@
 | 改 CLI | `ADR-002-cli.md` + `01-product/cli.md` | `04-testing/cli-smoke.md` | 前端样式 |
 | 问 exe 做不做 | `03-engineering/ADR-004-portable-exe.md` | 路线图状态表 | 打包脚本（未做） |
 | 验收里程碑 | 对应测试册 | wrap / roadmap 状态表 | 未进范围的二三梯队 |
+| v1 CLI/Web 正式用例与报告 | `04-testing/v1-cli-cases.md`、`v1-web-cases.md` | `04-testing/reports/`、`_qa_workdir/README.md` | 二三梯队 |
 
 ## 文档树
 

@@ -13,3 +13,6 @@ build/
 Thumbs.db
 .idea/
 .vscode/
+_qa_workdir/fixtures/
+_qa_workdir/outputs/
+_qa_workdir/reports/

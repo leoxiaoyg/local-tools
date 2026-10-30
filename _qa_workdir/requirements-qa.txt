@@ -1,0 +1,2 @@
+# 仅 QA 浏览器自动化用，不进入产品 requirements.txt
+playwright>=1.40
