@@ -5,11 +5,18 @@ if not exist ".venv" (
   python -m venv .venv
 )
 call .venv\Scripts\activate.bat
-set HTTP_PROXY=http://127.0.0.1:7897
-set HTTPS_PROXY=http://127.0.0.1:7897
+
+rem 默认直连 PyPI。若你本机需要代理，可先设置 LT_PIP_PROXY，例如：
+rem   set LT_PIP_PROXY=http://127.0.0.1:7897
+if defined LT_PIP_PROXY (
+  set "HTTP_PROXY=%LT_PIP_PROXY%"
+  set "HTTPS_PROXY=%LT_PIP_PROXY%"
+)
 pip install -r requirements.txt -q
-set HTTP_PROXY=
-set HTTPS_PROXY=
+if defined LT_PIP_PROXY (
+  set "HTTP_PROXY="
+  set "HTTPS_PROXY="
+)
 
 set PORT=8000
 netstat -ano | findstr ":%PORT%" | findstr "LISTENING" >nul 2>&1

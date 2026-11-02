@@ -11,10 +11,15 @@ fi
 # shellcheck disable=SC1091
 source .venv/bin/activate
 
-export HTTP_PROXY=http://127.0.0.1:7897
-export HTTPS_PROXY=http://127.0.0.1:7897
+# 默认直连 PyPI。需要代理时：export LT_PIP_PROXY=http://127.0.0.1:7897
+if [[ -n "${LT_PIP_PROXY:-}" ]]; then
+  export HTTP_PROXY="$LT_PIP_PROXY"
+  export HTTPS_PROXY="$LT_PIP_PROXY"
+fi
 pip install -r requirements.txt -q
-unset HTTP_PROXY HTTPS_PROXY
+if [[ -n "${LT_PIP_PROXY:-}" ]]; then
+  unset HTTP_PROXY HTTPS_PROXY
+fi
 
 port_in_use() {
   ss -tln 2>/dev/null | grep -q ":$1 " || \

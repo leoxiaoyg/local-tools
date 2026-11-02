@@ -1,8 +1,8 @@
 # Local Tools · 本地工具集
 
-**商品图与 PDF，在本机批量处理，敏感文件不上传。**
+本机跑的一套小工具：商品图、PDF、表格、视频等，文件留在这台电脑上，不传到别人的服务器。
 
-开源、免费。本机用 `run.bat` / `run.sh` 或 `python -m app` 跑起来即可，不承诺免安装。处理过程不依赖第三方云服务。
+源码按 **AGPL-3.0** 开源。需要自己装 Python 再启动，目前没有免安装包。
 
 ## 功能
 
@@ -12,7 +12,7 @@
 | 视频压缩 | `/video-compress.html` | 调整分辨率与 CRF，输出 MP4 / WebM |
 | 图片压缩 | `/image.html` | 尽量保持画质的前提下缩小体积，可指定上限；支持批量 zip |
 | 图片转换 | `/image-convert.html` | 格式转换（JPG / PNG / WebP）、等比缩放与裁剪；支持批量 zip |
-| EXIF 清除 | `/exif.html` | 查看并去掉拍摄时间、机型、GPS；免费 |
+| EXIF 清除 | `/exif.html` | 查看并去掉拍摄时间、机型、GPS |
 | 文字水印 | `/watermark.html` | 店名/说明文字；位置或斜向平铺 + 透明度；支持批量 zip |
 | JSON 格式化 | `/json.html` | 格式化、压缩、校验（纯浏览器，不上传服务器） |
 | Base64 编解码 | `/base64.html` | 文本本地处理；文件经本地 API 转换 |
@@ -22,14 +22,14 @@
 | PDF 工具 | `/pdf.html` | 合并、压缩、按页拆分 / 提取页、加密 / 解密 |
 | 最近处理 | `/` | 首页保留最近 20 条本机处理记录，可清空 |
 
-界面支持中文 / English，右上角切换，偏好存在本机。接口错误文案跟随 `Accept-Language`。首页“最近处理”只在本机保存工具名、时间和结果摘要，不上传文件内容。
+界面有中文 / English，右上角切换，记在本机。接口报错语言跟 `Accept-Language`。首页「最近处理」只存工具名、时间和结果摘要，不存文件内容。
 
 ## 环境要求
 
 - Python 3.10+
 - Windows 或 Linux
-- 无需单独安装 FFmpeg（通过 `imageio-ffmpeg` 内置）
-- Word / PPT → PDF 需要本机安装 **LibreOffice**（推荐）或 **Microsoft Office**（Windows）
+- FFmpeg 不用单独装（`imageio-ffmpeg` 自带）
+- Word / PPT → PDF 需要本机有 **LibreOffice**（推荐）或 **Microsoft Office**（Windows）
 
 ## 快速开始
 
@@ -41,7 +41,7 @@ cd local-tools
 run.bat
 ```
 
-浏览器打开终端显示的地址，一般为 [http://127.0.0.1:8000](http://127.0.0.1:8000)。
+浏览器打开终端里打印的地址，一般是 [http://127.0.0.1:8000](http://127.0.0.1:8000)。
 
 ### Linux / macOS
 
@@ -62,9 +62,23 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
+### pip 代理（可选）
+
+启动脚本默认直连 PyPI。只有你本机访问 PyPI 很慢、又确实有本地代理时，再设：
+
+```bat
+set LT_PIP_PROXY=http://127.0.0.1:7897
+run.bat
+```
+
+```bash
+export LT_PIP_PROXY=http://127.0.0.1:7897
+./run.sh
+```
+
 ## 命令行
 
-与 Web 共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、视频转音频 / 压缩、EXIF、PDF 合并压缩拆分与加密解密、CSV 清洗。Office 转换暂不提供。
+和网页共用同一套处理函数，不走 HTTP。覆盖图片压缩 / 转换 / 文字水印、视频转音频 / 压缩、EXIF、PDF 合并压缩拆分与加密解密、CSV 清洗。Office 转换暂不提供。
 
 ```bash
 python -m app --help
@@ -83,40 +97,37 @@ python -m app video audio clip.mp4 --format mp3
 python -m app video compress clip.mp4 --crf 28 --resolution 720
 ```
 
-`--lang zh|en` 控制提示语言，也可设环境变量 `LT_LANG`。多文件默认打成 zip；`-o` 指向已有目录时逐个写出。
+`--lang zh|en` 控制提示语言，也可设 `LT_LANG`。多文件默认打 zip；`-o` 指到已有目录就逐个写出。
 
-完整命令、参数与上限见 [docs/01-product/cli.md](docs/01-product/cli.md)。文档入口：[docs/00-governance/wiki.md](docs/00-governance/wiki.md)。
+命令说明见 [docs/01-product/cli.md](docs/01-product/cli.md)。文档入口：[docs/00-governance/wiki.md](docs/00-governance/wiki.md)。
 
-## 依赖安装说明
+## 已知限制
 
-`run.bat` / `run.sh` 在执行 `pip install` 时会临时使用代理 `http://127.0.0.1:7897`（便于访问 PyPI），安装完成后自动清除，不影响服务运行。若你不需要代理，可自行修改脚本中的 `HTTP_PROXY` / `HTTPS_PROXY`。
+- 没有 Windows 安装包 / 单文件 exe（见 ADR-004）
+- Office 相关转换依赖本机已装的办公软件，不打进本仓库
+- PDF 能力用了 PyMuPDF（AGPL）；加密、清 EXIF 都不是合规认证
+- `.cursor/skills/` 是给 Cursor Agent 用的角色说明，用不用随你
+
+## 许可证
+
+本仓库代码以 [AGPL-3.0](LICENSE) 发布。选用它，主要是因为 PDF 路径依赖的 PyMuPDF 也是 AGPL，两边对齐比较省事。第三方库各自遵循其原许可证。
+
+参与方式见 [CONTRIBUTING.md](CONTRIBUTING.md)。安全相关见 [SECURITY.md](SECURITY.md)。
 
 ## 项目结构
 
 ```
 local-tools/
 ├── app/                  # FastAPI 后端
-│   ├── main.py           # 路由入口
-│   ├── converter.py      # 视频转音频
-│   ├── video_compressor.py
-│   ├── image_compressor.py
-│   ├── image_transform.py
-│   ├── watermark.py      # 文字水印
-│   ├── csv_excel.py
-│   ├── csv_clean.py      # CSV 去空行 / 去重 / 留列
-│   ├── doc_converter.py
-│   ├── batch.py          # 批量处理 + zip
-│   ├── pdf_tools.py      # PDF 合并 / 压缩 / 拆分 / 加密
-│   ├── exif_tools.py     # EXIF 查看 / 清除
-│   ├── i18n.py           # Web / CLI 的 zh / en
-│   ├── cli.py            # 命令行入口（python -m app）
-│   └── __main__.py
-├── static/               # 前端页面与静态资源（含 locales.js / i18n.js）
+├── static/               # 前端页面
 ├── tests/                # CLI 冒烟：python tests/cli_smoke.py
-├── docs/                 # Wiki、说明书、ADR、测试清单（入口：docs/00-governance/wiki.md）
+├── docs/                 # 说明书、ADR、测试（入口 wiki.md）
+├── _qa_workdir/          # QA 脚本；夹具与产出默认不入库
 ├── requirements.txt
-├── run.bat               # Windows 启动脚本
-└── run.sh                # Linux 启动脚本
+├── run.bat / run.sh
+├── LICENSE
+├── CONTRIBUTING.md
+└── SECURITY.md
 ```
 
 ## 文件大小限制
@@ -143,11 +154,11 @@ local-tools/
 
 ## 常见问题
 
-**端口被占用：** 启动脚本会自动尝试 8080、8765。
+**端口被占用：** 启动脚本会接着试 8080、8765。
 
-**图片压缩后格式变了：** 选择「保持原格式」时只会在原格式内优化；若需明显缩小 PNG 体积，可手动选择 WebP。
+**图片压缩后格式变了：** 「保持原格式」只在原格式里压；PNG 想明显变小，可改成 WebP。
 
-**视频压缩较慢：** 与视频时长和分辨率有关，请耐心等待。
+**视频压缩慢：** 和时长、分辨率有关，等一会儿。
 
 ## 仓库
 
