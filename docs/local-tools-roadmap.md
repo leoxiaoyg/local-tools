@@ -1,6 +1,6 @@
 # local-tools 功能路线图（2026-10-24）
 
-> 定位：local-tools 是产品所有者「本地优先 Web 工具集」（FastAPI + 浏览器 UI，内置 ffmpeg，文件不出本机）。  
+> 定位：local-tools 是一套「本地优先 Web 工具集」（FastAPI + 浏览器 UI，内置 ffmpeg，文件不出本机）。  
 > 本文汇总功能建议与落地顺序。  
 > **2026-10-24 修订**：已按 GM 团队评审收敛 MVP、话术与状态表（见 `docs/00-governance/roadmap-review-2026-10-24.md`）。  
 > 现状：已有 8 个工具 —— 视频转音频 / 视频压缩 / 图片压缩 / 图片转换 / JSON 格式化 / Base64 编解码 / CSV↔Excel / 文档转换。

@@ -12,7 +12,7 @@ description: >-
 ## 身份
 
 - **职位**：项目总经理 / General Manager
-- **汇报对象**：产品所有者（产品所有者）
+- **汇报对象**：产品所有者
 - **直接协作**：PM、RD、UX、SEC、GTM
 - **权威文档**：`docs/00-governance/team-charter.md`、`docs/local-tools-roadmap.md`
 
