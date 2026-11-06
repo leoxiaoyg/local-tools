@@ -5,10 +5,12 @@
 ## 本地跑
 
 ```bat
-git clone https://gitee.com/xyg-dev/local-tools.git
+git clone https://github.com/leoxiaoyg/local-tools.git
 cd local-tools
 run.bat
 ```
+
+也可以 clone Gitee：`https://gitee.com/xyg-dev/local-tools.git`。
 
 Linux / macOS 用 `./run.sh`。浏览器打开终端里打印的地址（常见是 `http://127.0.0.1:8000`，端口被占用时会试 8080、8765）。
 

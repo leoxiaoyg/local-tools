@@ -10,6 +10,7 @@
 | 问下一步做什么 | `docs/local-tools-roadmap.md` | `05-project/wrap-2026-10-24.md` | 实现细节 |
 | 问对外怎么说 / 收不收费 | `README.md` 首段 + 路线图第三节 | ADR-004（不承诺免安装） | 新工具清单 |
 | 问许可证 / 开源义务 | `LICENSE`、`ADR-005-license-agpl.md` | `CONTRIBUTING.md`、`SECURITY.md` | 新功能清单 |
+| 问 GitHub 怎么发 | `05-project/github-publish-checklist.md` | `README.md` 仓库一节 | `knowledge-base/local-tools-release-prep`（废弃草稿） |
 | 用 Web | `README.md` | `01-product/pdf.md`、`01-product/watermark.md`、`01-product/csv-clean.md`、各工具页 | CLI 说明书 |
 | 问最近处理 / 本地历史 | `01-product/history.md` | `04-testing/history.md` | 后端实现 |
 | 改文字水印 | `01-product/watermark.md` | `04-testing/watermark.md` | 图片贴图（未做） |

@@ -119,3 +119,4 @@
 | 二三梯队 / rembg | 📋 规划中 | 按需求滚动，不进默认核心 |
 | v1 发布 / 使用期 | ✅ 口径已钉 | 2026-10-26 · 停新工具 · 先自用 |
 | 许可证 AGPL-3.0 | ✅ 已采纳 | 2026-10-30 · ADR-005 · 与 PyMuPDF 对齐 |
+| GitHub 镜像发布 | 📋 文档已备 | 检查单见 `05-project/github-publish-checklist.md`；仓名 `local-tools` |
